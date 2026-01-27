@@ -1,0 +1,17 @@
+{
+  "workspace": ["./types", "./core", "./cli"],
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "fmt": {
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "singleQuote": false
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  }
+}

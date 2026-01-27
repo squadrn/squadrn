@@ -1,0 +1,10 @@
+{
+  "name": "@squadrn/core",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
+  "imports": {
+    "@squadrn/types": "../types/mod.ts",
+    "@std/toml": "jsr:@std/toml@^1",
+    "@db/sqlite": "jsr:@db/sqlite@^0.12"
+  }
+}
