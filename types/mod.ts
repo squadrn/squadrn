@@ -33,3 +33,17 @@ export type {
   StreamChunk,
   LLMProvider,
 } from "./llm.ts";
+
+export type {
+  LogLevel,
+  GatewayConfig,
+  StorageConfig,
+  AgentConfig,
+  SquadrnConfig,
+} from "./config.ts";
+
+export type {
+  QueryFilter,
+  Transaction,
+  StorageAdapter,
+} from "./storage.ts";

@@ -1,11 +1,11 @@
 import { EventBus } from "./event_bus.ts";
-import { loadConfig, type SquadrnConfig } from "./config_manager.ts";
+import { ConfigManager, type SquadrnConfig } from "./config_manager.ts";
 import { SqliteStorage } from "./storage/sqlite.ts";
 import type { StorageAdapter } from "./storage/adapter.ts";
 
 export class Gateway {
   #events: EventBus;
-  #config: SquadrnConfig | null = null;
+  #configManager: ConfigManager | null = null;
   #storage: StorageAdapter | null = null;
   #running = false;
 
@@ -17,6 +17,10 @@ export class Gateway {
     return this.#events;
   }
 
+  get config(): SquadrnConfig | null {
+    return this.#configManager?.config ?? null;
+  }
+
   get isRunning(): boolean {
     return this.#running;
   }
@@ -24,11 +28,11 @@ export class Gateway {
   async start(configPath: string): Promise<void> {
     if (this.#running) throw new Error("Gateway is already running");
 
-    // Load config
-    const result = await loadConfig(configPath);
+    const result = await ConfigManager.load(configPath);
     if (!result.ok) throw result.error;
-    const config = result.value;
-    this.#config = config;
+    const mgr = result.value;
+    this.#configManager = mgr;
+    const config = mgr.config;
 
     // Init storage
     this.#storage = new SqliteStorage(config.storage.path);
