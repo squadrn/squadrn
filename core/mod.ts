@@ -17,3 +17,4 @@ export type {
 } from "./config_manager.ts";
 export type { StorageAdapter, QueryFilter, Transaction } from "./storage/adapter.ts";
 export { SqliteStorage } from "./storage/sqlite.ts";
+export { StructuredLogger, createLogger } from "./logger.ts";
