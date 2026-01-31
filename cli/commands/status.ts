@@ -1,25 +1,33 @@
-import { PID_PATH, CONFIG_PATH } from "../utils/paths.ts";
-import { loadConfig } from "@squadrn/core";
+import { GatewayClient, loadConfig } from "@squadrn/core";
+import { CONFIG_PATH, SOCKET_PATH } from "../utils/paths.ts";
 import * as out from "../utils/output.ts";
 
 export async function statusCommand(): Promise<void> {
   out.header("Squadrn Status");
 
-  // Check gateway
-  try {
-    const pid = await Deno.readTextFile(PID_PATH);
-    const pidNum = parseInt(pid.trim(), 10);
-    try {
-      Deno.kill(pidNum, "SIGCONT");
-      out.success(`Gateway running (PID: ${pidNum})`);
-    } catch {
-      out.warn("Stale PID file found, gateway not running");
-    }
-  } catch {
-    out.info("Gateway: not running");
+  // Try to get live status from the gateway socket
+  const client = new GatewayClient(SOCKET_PATH);
+  const response = await client.status();
+
+  if (response.ok && response.data) {
+    const data = response.data as {
+      pid: number;
+      uptime: number;
+      plugins: string[];
+      config: { agents: Record<string, unknown> } | null;
+    };
+    out.success(`Gateway running (PID: ${data.pid})`);
+    const uptimeSec = Math.floor(data.uptime / 1000);
+    out.info(`Uptime: ${uptimeSec}s`);
+    out.info(`Plugins loaded: ${data.plugins.length}`);
+    const agentCount = data.config ? Object.keys(data.config.agents).length : 0;
+    out.info(`Agents configured: ${agentCount}`);
+    return;
   }
 
-  // Show config info
+  // Fallback: static info from config file
+  out.info("Gateway: not running");
+
   const result = await loadConfig(CONFIG_PATH);
   if (result.ok) {
     const config = result.value;

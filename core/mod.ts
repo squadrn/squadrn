@@ -1,4 +1,6 @@
 export { Gateway } from "./gateway.ts";
+export type { GatewayCommand, GatewayResponse, GatewayStatus } from "./gateway.ts";
+export { GatewayClient } from "./gateway_client.ts";
 export { EventBus } from "./event_bus.ts";
 export {
   ConfigManager,

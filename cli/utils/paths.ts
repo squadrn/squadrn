@@ -8,3 +8,4 @@ export const DATA_DIR = join(SQUADRN_DIR, "data");
 export const AGENTS_DIR = join(SQUADRN_DIR, "agents");
 export const PLUGINS_PATH = join(SQUADRN_DIR, "plugins.json");
 export const PID_PATH = join(SQUADRN_DIR, "gateway.pid");
+export const SOCKET_PATH = join(SQUADRN_DIR, "gateway.sock");

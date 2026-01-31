@@ -1,14 +1,21 @@
 import { Gateway } from "@squadrn/core";
-import { CONFIG_PATH, PID_PATH } from "../utils/paths.ts";
+import { CONFIG_PATH, PID_PATH, SOCKET_PATH } from "../utils/paths.ts";
 import * as out from "../utils/output.ts";
 
 export async function startCommand(): Promise<void> {
   // Check for existing PID
   try {
     const pid = await Deno.readTextFile(PID_PATH);
-    out.error(`Gateway already running (PID: ${pid.trim()})`);
-    out.info("Run 'squadrn stop' first");
-    return;
+    const pidNum = parseInt(pid.trim(), 10);
+    try {
+      Deno.kill(pidNum, "SIGCONT");
+      out.error(`Gateway already running (PID: ${pidNum})`);
+      out.info("Run 'squadrn stop' first");
+      return;
+    } catch {
+      out.warn("Stale PID file found, cleaning up");
+      await Deno.remove(PID_PATH).catch(() => {});
+    }
   } catch {
     // No PID file, good to go
   }
@@ -18,7 +25,7 @@ export async function startCommand(): Promise<void> {
   const gateway = new Gateway();
 
   try {
-    await gateway.start(CONFIG_PATH);
+    await gateway.start(CONFIG_PATH, SOCKET_PATH);
   } catch (err) {
     out.error(`Failed to start: ${(err as Error).message}`);
     Deno.exit(1);
@@ -29,6 +36,7 @@ export async function startCommand(): Promise<void> {
 
   out.success("Gateway is running");
   out.info(`PID: ${Deno.pid}`);
+  out.info(`Socket: ${SOCKET_PATH}`);
 
   // Handle shutdown signals
   const shutdown = async () => {
