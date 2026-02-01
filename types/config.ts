@@ -26,4 +26,5 @@ export interface SquadrnConfig {
   gateway: GatewayConfig;
   storage: StorageConfig;
   agents: Record<string, AgentConfig>;
+  plugins?: Record<string, Record<string, unknown>>;
 }

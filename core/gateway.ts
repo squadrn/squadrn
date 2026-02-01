@@ -3,6 +3,7 @@ import { ConfigManager, type SquadrnConfig } from "./config_manager.ts";
 import { SqliteStorage } from "./storage/sqlite.ts";
 import type { StorageAdapter } from "./storage/adapter.ts";
 import { createLogger } from "./logger.ts";
+import { PluginLoader } from "./plugin_loader.ts";
 import type { Logger } from "@squadrn/types";
 
 /** JSON command sent over the Unix socket. */
@@ -44,6 +45,7 @@ export class Gateway {
   #startedAt: number = 0;
   #gracePeriodMs: number = DEFAULT_GRACE_MS;
   #plugins: string[] = [];
+  #pluginLoader: PluginLoader | null = null;
 
   constructor(options?: { gracePeriodMs?: number }) {
     this.#events = new EventBus();
@@ -69,6 +71,10 @@ export class Gateway {
     return this.#socketPath;
   }
 
+  get pluginLoader(): PluginLoader | null {
+    return this.#pluginLoader;
+  }
+
   /** Start the gateway daemon. */
   async start(configPath: string, socketPath: string): Promise<void> {
     if (this.#running) throw new Error("Gateway is already running");
@@ -86,8 +92,11 @@ export class Gateway {
 
     // 3. Event bus is ready (constructed in constructor)
 
-    // 4. TODO: Load installed plugins from ~/.squadrn/plugins.json
-    // Plugins will be loaded here in a future implementation
+    // 4. Load installed plugins
+    const pluginsJsonPath = socketPath.replace("gateway.sock", "plugins.json");
+    this.#pluginLoader = new PluginLoader(this.#events, this.#storage!, config.plugins ?? {});
+    await this.#pluginLoader.loadAll(pluginsJsonPath);
+    this.#plugins = this.#pluginLoader.listLoaded();
 
     // 5. Start Unix socket server
     this.#socketPath = socketPath;
@@ -125,7 +134,8 @@ export class Gateway {
     ]);
     clearTimeout(graceTimer);
 
-    // 3. Disconnect plugins (future: call plugin.unregister())
+    // 3. Disconnect plugins
+    this.#pluginLoader = null;
 
     // 4. Close storage
     this.#storage?.close();
