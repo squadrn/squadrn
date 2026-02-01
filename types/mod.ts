@@ -1,3 +1,18 @@
+/**
+ * @squadrn/types — Public type definitions for the Squadrn plugin system.
+ *
+ * Plugin authors should import all types from this single entry point:
+ *
+ * ```ts
+ * import type { Plugin, PluginAPI, ChannelProvider } from "@squadrn/types";
+ * ```
+ *
+ * Published at: https://jsr.io/@squadrn/types
+ *
+ * @module
+ */
+
+// ── Models (branded IDs, core entities) ─────────────────────────────────────
 export type {
   AgentId,
   TaskId,
@@ -10,15 +25,20 @@ export type {
   Result,
 } from "./models.ts";
 
+// ── Events ──────────────────────────────────────────────────────────────────
 export type { EventName, EventHandler, EventEmitter } from "./events.ts";
 
+// ── Plugin system ───────────────────────────────────────────────────────────
 export type {
+  PluginType,
+  PluginPermissions,
   PluginManifest,
   Logger,
   PluginAPI,
   Plugin,
 } from "./plugin.ts";
 
+// ── Channel plugins ─────────────────────────────────────────────────────────
 export type {
   Attachment,
   IncomingMessage,
@@ -26,14 +46,25 @@ export type {
   ChannelProvider,
 } from "./channel.ts";
 
+// ── LLM plugins ─────────────────────────────────────────────────────────────
 export type {
   ToolDefinition,
+  ToolCall,
+  ToolResult,
   CompletionRequest,
   CompletionResponse,
+  CompletionWithToolsResponse,
   StreamChunk,
   LLMProvider,
 } from "./llm.ts";
 
+// ── Tool plugins ────────────────────────────────────────────────────────────
+export type {
+  ToolProvider,
+  ToolExecutionResult,
+} from "./tool.ts";
+
+// ── Configuration ───────────────────────────────────────────────────────────
 export type {
   LogLevel,
   GatewayConfig,
@@ -42,6 +73,7 @@ export type {
   SquadrnConfig,
 } from "./config.ts";
 
+// ── Storage ─────────────────────────────────────────────────────────────────
 export type {
   QueryFilter,
   Transaction,
