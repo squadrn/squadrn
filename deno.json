@@ -1,7 +1,7 @@
 {
   "workspace": ["./types", "./core", "./cli"],
   "tasks": {
-    "test": "deno test --allow-all"
+    "test": "deno test --quiet --allow-all"
   },
   "compilerOptions": {
     "strict": true,
