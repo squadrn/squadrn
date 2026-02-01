@@ -24,6 +24,11 @@ export interface GatewayStatus {
   uptime: number;
   config: SquadrnConfig | null;
   plugins: string[];
+  memory: {
+    rss: number;
+    heapUsed: number;
+    heapTotal: number;
+  };
 }
 
 const DEFAULT_GRACE_MS = 5000;
@@ -144,12 +149,18 @@ export class Gateway {
 
   /** Build a status snapshot. */
   status(): GatewayStatus {
+    const mem = Deno.memoryUsage();
     return {
       running: this.#running,
       pid: Deno.pid,
       uptime: this.#running ? Date.now() - this.#startedAt : 0,
       config: this.config,
       plugins: [...this.#plugins],
+      memory: {
+        rss: mem.rss,
+        heapUsed: mem.heapUsed,
+        heapTotal: mem.heapTotal,
+      },
     };
   }
 

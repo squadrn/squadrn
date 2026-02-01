@@ -1,48 +1,36 @@
+<div align="center">
+
 # Squadrn
 
-**Plugin-based orchestration layer for AI agent teams.**
+### Kubernetes for AI agents.
 
-Squadrn enables developers to run multiple persistent AI agents that collaborate through shared context, tasks, and communication channels. It doesn't run agents or wrap LLMs — it orchestrates them. Think "Kubernetes for AI agents."
+**Orchestrate persistent AI agent teams with a plugin-first architecture.**
+**Squadrn doesn't run agents or wrap LLMs — it coordinates them.**
 
-## Core Principles
+[Get Started](#getting-started) · [Docs](docs/SQUADRN_SPEC.md) · [Plugins](#plugin-system)
 
-- **Radical simplicity** — One command to install, interactive wizard to configure
-- **Plugin-first architecture** — Core is minimal; LLMs, channels, and tools are all plugins
-- **Developer experience** — Strict TypeScript, clear error messages, comprehensive docs
-- **SaaS-ready design** — Self-hosted first, architected for future multi-tenancy
+---
 
-## Architecture
+</div>
+
+## What is Squadrn?
+
+Squadrn is an orchestration layer that lets multiple AI agents collaborate through shared context, tasks, and communication channels. You bring your own LLMs, your own channels, your own tools — Squadrn wires them together.
 
 ```
-┌───────────────────────────────────────────────────┐
-│                       CLI                         │
-│    squadrn start | stop | status | plugin | agent │
-└─────────────────────┬─────────────────────────────┘
-                      ▼
-┌───────────────────────────────────────────────────┐
-│                    GATEWAY                         │
-│               (Long-running daemon)                │
-├───────────────────────────────────────────────────┤
-│  Plugin Loader · Event Bus · Scheduler (Cron)     │
-│  Session Manager · Storage Adapter · Config Mgr   │
-└─────────────────────┬─────────────────────────────┘
-            ┌─────────┼─────────┐
-            ▼         ▼         ▼
-       ┌─────────┐ ┌───────┐ ┌────────┐
-       │ Channel │ │  LLM  │ │ Custom │
-       │ plugins │ │plugins│ │plugins │
-       └─────────┘ └───────┘ └────────┘
+You define agents → Squadrn assigns tasks, routes messages, manages sessions
+Agents think via LLM plugins → Squadrn delivers responses through channel plugins
+Everything is a plugin → Swap any piece without touching the rest
 ```
 
-## Tech Stack
+### Why Squadrn?
 
-| Component | Choice |
-|-----------|--------|
-| Runtime | Deno 2.x |
-| Language | TypeScript (strict) |
-| Storage | SQLite (swappable via adapter interface) |
-| IPC | Unix sockets + HTTP fallback |
-| Config | TOML |
+| Problem | Squadrn's approach |
+|---|---|
+| Agent frameworks lock you into one LLM | LLMs are plugins — use Claude, GPT, Llama, or all three |
+| No coordination between agents | Shared task board, mentions, activity feed |
+| Hard to add new capabilities | `squadrn plugin add <url>` and done |
+| Complex deployment | Single daemon, one command to start |
 
 ## Getting Started
 
@@ -50,49 +38,76 @@ Squadrn enables developers to run multiple persistent AI agents that collaborate
 # Install
 curl -fsSL https://squadrn.dev/install.sh | sh
 
-# Setup
-squadrn init          # Interactive wizard
-squadrn start         # Start gateway daemon
-squadrn status        # Check running state
+# Configure interactively
+squadrn init
+
+# Launch the gateway daemon
+squadrn start
 ```
 
-## CLI Commands
+That's it. Add agents, connect channels, assign tasks.
+
+## Architecture
+
+```
+  CLI ──────────────────────────────────────────────────
+  squadrn start | stop | status | plugin | agent
+         │
+         ▼
+  GATEWAY (daemon) ─────────────────────────────────────
+  Plugin Loader · Event Bus · Scheduler · Session Manager
+  Storage Adapter · Config Manager
+         │
+         ├──→  Channel plugins   (Telegram, Slack, ...)
+         ├──→  LLM plugins       (Claude, OpenAI, ...)
+         └──→  Custom plugins    (tools, storage, UI)
+```
+
+**Message flow:** Channel receives message → Gateway routes to agent → Agent thinks via LLM → Gateway delivers response through channel.
+
+## CLI
 
 ```bash
-# Gateway lifecycle
-squadrn start / stop / status
+squadrn start | stop | status       # Gateway lifecycle
 
-# Plugin management
-squadrn plugin add <github-url>
-squadrn plugin remove <name>
-squadrn plugin list
+squadrn agent create <name>         # Create an agent
+squadrn agent list                  # List all agents
+squadrn agent logs <name>           # Stream agent logs
 
-# Agent management
-squadrn agent create <name>
-squadrn agent list / start / stop / logs <name>
+squadrn plugin add <github-url>     # Install a plugin
+squadrn plugin list                 # List installed plugins
 
-# Task management
-squadrn task create
-squadrn task list
-squadrn task assign <id> <agent>
+squadrn task create                 # Create a task
+squadrn task assign <id> <agent>    # Assign to an agent
 ```
 
 ## Plugin System
 
-Plugins provide channels (Telegram, Slack), LLMs (Claude, OpenAI), storage backends, tools, and more. Each plugin declares its required Deno permissions and receives a sandboxed API with namespaced storage, event access, and logging.
+Everything beyond the core is a plugin. Six types:
 
-Plugin types: `channel` | `llm` | `storage` | `tool` | `ui` | `custom`
+| Type | Examples |
+|---|---|
+| `channel` | Telegram, Slack, Discord |
+| `llm` | Claude, OpenAI, local models |
+| `storage` | Postgres, Redis |
+| `tool` | Web search, code execution |
+| `ui` | Dashboard, monitoring |
+| `custom` | Anything else |
 
-See `docs/SQUADRN_SPEC.md` for the full plugin interface and development guide.
+Each plugin declares its Deno permissions upfront and gets a sandboxed API with namespaced storage, event bus access, and structured logging. No plugin can touch another plugin's data.
+
+## Tech Stack
+
+**Deno 2.x** · **Strict TypeScript** · **SQLite** (swappable) · **TOML config** · **Unix sockets + HTTP**
 
 ## Project Structure
 
 ```
 squadrn/
-├── cli/          # CLI application (@squadrn/cli)
-├── core/         # Gateway daemon engine (@squadrn/core)
-├── types/        # Shared interfaces & branded IDs (@squadrn/types)
-└── docs/         # Specification & documentation
+├── types/   @squadrn/types   — Branded IDs, shared interfaces (the plugin contract)
+├── core/    @squadrn/core    — Gateway daemon engine
+├── cli/     @squadrn/cli     — CLI entry point and commands
+└── docs/                     — Full specification
 ```
 
 ## Development
