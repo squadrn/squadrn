@@ -19,7 +19,11 @@ export type EventName =
   // Agent
   | "agent:heartbeat"
   | "agent:thinking"
-  | "agent:response";
+  | "agent:response"
+  // Sessions
+  | "session:created"
+  | "session:updated"
+  | "session:ended";
 
 export type EventHandler = (payload: unknown) => void | Promise<void>;
 

@@ -29,3 +29,4 @@ export {
   validateManifest,
 } from "./plugin_loader.ts";
 export type { InstalledPlugin } from "./plugin_loader.ts";
+export { SessionManager, SessionNotFoundError } from "./session_manager.ts";
