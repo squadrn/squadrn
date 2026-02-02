@@ -1,5 +1,8 @@
 {
   "workspace": ["./types", "./core", "./cli"],
+  "tasks": {
+    "test": "deno test --allow-all"
+  },
   "compilerOptions": {
     "strict": true,
     "noUncheckedIndexedAccess": true

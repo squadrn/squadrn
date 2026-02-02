@@ -116,7 +116,14 @@ squadrn/
 deno check cli/mod.ts    # Type-check
 deno fmt                 # Format
 deno lint                # Lint
-deno test                # Run all tests
+deno task test           # Run all tests (core + CLI, 70 tests)
+```
+
+To run a specific test file:
+
+```bash
+deno test --allow-all core/gateway_test.ts
+deno test --allow-all cli/commands/start_test.ts
 ```
 
 ## License
