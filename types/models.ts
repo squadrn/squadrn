@@ -25,16 +25,18 @@ export interface Message {
   content: string;
 }
 
+export interface SessionContext {
+  conversationHistory: Message[];
+  workingMemory: Record<string, unknown>;
+  currentTaskId?: TaskId;
+}
+
 export interface Session {
   id: SessionId;
   agentId: AgentId;
   workspaceId: WorkspaceId;
   status: "idle" | "active" | "blocked";
-  context: {
-    conversationHistory: Message[];
-    workingMemory: Record<string, unknown>;
-    currentTaskId?: TaskId;
-  };
+  context: SessionContext;
   createdAt: Date;
   lastActiveAt: Date;
 }
@@ -58,3 +60,65 @@ export interface Task {
 }
 
 export type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: E };
+
+// ── Helper functions ─────────────────────────────────────────────────────────
+
+export function createAgentId(): AgentId {
+  return crypto.randomUUID() as AgentId;
+}
+
+export function createSessionId(): SessionId {
+  return crypto.randomUUID() as SessionId;
+}
+
+export interface SerializedAgent {
+  id: string;
+  workspaceId: string;
+  name: string;
+  role: string;
+  status: Agent["status"];
+  llm: string;
+  channels: string[];
+  heartbeatCron: string;
+  soulFile: string;
+  currentTaskId?: string;
+  currentSessionId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function serializeAgent(agent: Agent): SerializedAgent {
+  return {
+    id: agent.id,
+    workspaceId: agent.workspaceId,
+    name: agent.name,
+    role: agent.role,
+    status: agent.status,
+    llm: agent.llm,
+    channels: agent.channels,
+    heartbeatCron: agent.heartbeatCron,
+    soulFile: agent.soulFile,
+    currentTaskId: agent.currentTaskId,
+    currentSessionId: agent.currentSessionId,
+    createdAt: agent.createdAt.toISOString(),
+    updatedAt: agent.updatedAt.toISOString(),
+  };
+}
+
+export function deserializeAgent(data: SerializedAgent): Agent {
+  return {
+    id: data.id as AgentId,
+    workspaceId: data.workspaceId as WorkspaceId,
+    name: data.name,
+    role: data.role,
+    status: data.status,
+    llm: data.llm,
+    channels: data.channels,
+    heartbeatCron: data.heartbeatCron,
+    soulFile: data.soulFile,
+    currentTaskId: data.currentTaskId as TaskId | undefined,
+    currentSessionId: data.currentSessionId as SessionId | undefined,
+    createdAt: new Date(data.createdAt),
+    updatedAt: new Date(data.updatedAt),
+  };
+}

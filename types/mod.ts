@@ -20,9 +20,18 @@ export type {
   WorkspaceId,
   Agent,
   Message,
+  SessionContext,
   Session,
   Task,
   Result,
+  SerializedAgent,
+} from "./models.ts";
+
+export {
+  createAgentId,
+  createSessionId,
+  serializeAgent,
+  deserializeAgent,
 } from "./models.ts";
 
 // ── Events ──────────────────────────────────────────────────────────────────
