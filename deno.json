@@ -1,6 +1,12 @@
 {
-  "version": "0.1.0",
-  "workspace": ["./types", "./core", "./cli", "./plugins/channel-telegram", "./plugins/llm-claude"],
+  "version": "0.1.1",
+  "workspace": [
+    "./types",
+    "./core",
+    "./cli",
+    "./plugins/channel-telegram",
+    "./plugins/llm-claude"
+  ],
   "tasks": {
     "test": "deno test --quiet --allow-all"
   },
