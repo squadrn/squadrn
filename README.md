@@ -14,7 +14,7 @@
 **Orchestrate persistent AI agent teams with a plugin-first architecture.** **Squadrn doesn't run
 agents or wrap LLMs — it coordinates them.**
 
-[Website](https://squadrn.dev) · [Get Started](docs/getting-started.md) ·
+[Website](https://squadrn.github.io/squadrn/) · [Get Started](docs/getting-started.md) ·
 [Architecture](docs/architecture.md) · [Docs](docs/) · [Plugins](docs/plugin-development.md)
 
 ---
