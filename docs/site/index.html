@@ -595,13 +595,16 @@
     <section class="arch">
       <div class="section-label">Architecture</div>
       <h2 class="section-title">Minimal core, maximum extensibility</h2>
-      <div class="arch-diagram">
-        <span class="hl">CLI</span> squadrn start | stop | status | plugin | agent │ ▼
-        <span class="hl">GATEWAY</span> (long-running daemon) ├── Plugin Loader ├── Event Bus ├──
-        Scheduler ├── Session Manager ├── Storage (SQLite) ├── Config (TOML) │ ├──→ <span class="hl"
-        >Channel plugins</span> Telegram · Slack · Discord ├──→ <span class="hl">LLM plugins</span>
-        Claude · OpenAI · Ollama └──→ <span class="hl">Custom plugins</span> Tools · Storage · UI
-      </div>
+      <pre class="arch-diagram"><span class="hl">CLI</span>  squadrn start | stop | status | plugin | agent
+  │
+  ▼
+<span class="hl">GATEWAY</span>  (long-running daemon)
+  ├── Plugin Loader    ├── Event Bus       ├── Scheduler
+  ├── Session Manager  ├── Storage (SQLite) ├── Config (TOML)
+  │
+  ├──→  <span class="hl">Channel plugins</span>   Telegram · Slack · Discord
+  ├──→  <span class="hl">LLM plugins</span>       Claude · OpenAI · Ollama
+  └──→  <span class="hl">Custom plugins</span>    Tools · Storage · UI</pre>
     </section>
 
     <section class="cta">
