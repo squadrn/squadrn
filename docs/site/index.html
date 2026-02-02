@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Squadrn — Kubernetes for AI agents</title>
+<meta name="description" content="Open-source orchestration layer for AI agent teams. Plugin-first architecture. Persistent agents that collaborate through shared context, tasks, and channels.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+  :root {
+    --bg: #0a0a0c;
+    --bg-raised: #111114;
+    --bg-surface: #18181c;
+    --border: #222228;
+    --border-accent: #2a2a32;
+    --text: #e8e8ec;
+    --text-dim: #7a7a88;
+    --text-muted: #4a4a56;
+    --accent: #c8ff00;
+    --accent-dim: #a0cc00;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Instrument Sans', system-ui, sans-serif;
+  }
+
+  html { scroll-behavior: smooth }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* — Grid background — */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* — Glow spot — */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    right: -200px;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(200,255,0,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  section, header, footer { position: relative; z-index: 1 }
+
+  a { color: var(--accent); text-decoration: none }
+  a:hover { text-decoration: underline }
+
+  /* — NAV — */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10,10,12,0.8);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+
+  .nav-logo span { color: var(--accent) }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+
+  .nav-links a {
+    color: var(--text-dim);
+    transition: color 0.2s;
+  }
+  .nav-links a:hover {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  /* — HERO — */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 2rem 6rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(200,255,0,0.06);
+    border: 1px solid rgba(200,255,0,0.15);
+    padding: 0.35rem 0.85rem;
+    border-radius: 100px;
+    width: fit-content;
+    margin-bottom: 2rem;
+    letter-spacing: 0.03em;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    animation: fadeDown 0.8s ease 0.1s both;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--text-dim);
+    max-width: 540px;
+    line-height: 1.7;
+    margin-bottom: 3rem;
+    animation: fadeDown 0.8s ease 0.2s both;
+  }
+
+  .hero-install {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    animation: fadeDown 0.8s ease 0.3s both;
+  }
+
+  .install-box {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-accent);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    color: var(--text-dim);
+    user-select: all;
+    cursor: text;
+    transition: border-color 0.2s;
+  }
+
+  .install-box:hover { border-color: var(--accent) }
+  .install-box span { color: var(--accent) }
+
+  .btn-primary {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 24px rgba(200,255,0,0.2);
+    text-decoration: none;
+  }
+
+  /* — FEATURES — */
+  .features {
+    padding: 6rem 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 3rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .feature-card {
+    background: var(--bg-raised);
+    padding: 2rem;
+    transition: background 0.2s;
+  }
+
+  .feature-card:hover { background: var(--bg-surface) }
+
+  .feature-icon {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    background: rgba(200,255,0,0.06);
+    border: 1px solid rgba(200,255,0,0.12);
+    display: inline-flex;
+    padding: 0.4rem 0.7rem;
+    border-radius: 6px;
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.05em;
+  }
+
+  .feature-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-card p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* — QUICKSTART — */
+  .quickstart {
+    padding: 6rem 2rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .code-block {
+    background: var(--bg-raised);
+    border: 1px solid var(--border-accent);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 1.5rem;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .code-header::before {
+    content: '';
+    display: flex;
+    gap: 6px;
+    width: 8px;
+    height: 8px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    opacity: 0.4;
+  }
+
+  .code-body {
+    padding: 1.25rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    line-height: 1.9;
+    overflow-x: auto;
+    color: var(--text-dim);
+  }
+
+  .code-body .comment { color: var(--text-muted) }
+  .code-body .cmd { color: var(--text) }
+  .code-body .flag { color: var(--accent-dim) }
+  .code-body .arg { color: #88aaff }
+
+  /* — ARCHITECTURE — */
+  .arch {
+    padding: 6rem 2rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .arch-diagram {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    line-height: 1.7;
+    color: var(--text-dim);
+    background: var(--bg-raised);
+    border: 1px solid var(--border-accent);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 1.5rem;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .arch-diagram .hl { color: var(--accent) }
+
+  /* — CTA — */
+  .cta {
+    padding: 8rem 2rem;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .cta h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .cta p {
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+  }
+
+  .cta-links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-outline {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text);
+    border: 1px solid var(--border-accent);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--text-dim);
+    background: var(--bg-raised);
+    text-decoration: none;
+  }
+
+  /* — FOOTER — */
+  footer {
+    padding: 3rem 2rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+
+  footer a { color: var(--text-dim) }
+
+  /* — ANIMATIONS — */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(12px) }
+    to   { opacity: 1; transform: translateY(0) }
+  }
+
+  /* — RESPONSIVE — */
+  @media (max-width: 768px) {
+    .features-grid { grid-template-columns: 1fr }
+    nav { padding: 1rem }
+    .nav-links { gap: 1rem }
+    .hero { padding: 7rem 1.5rem 4rem }
+    .hero-install { flex-direction: column; align-items: flex-start }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">squadrn<span>.</span></div>
+  <ul class="nav-links">
+    <li><a href="https://github.com/squadrn/squadrn/tree/main/docs">Docs</a></li>
+    <li><a href="https://github.com/squadrn/squadrn/tree/main/plugins">Plugins</a></li>
+    <li><a href="https://github.com/squadrn/squadrn">GitHub</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">v0.1.0 — now available</div>
+  <h1>Kubernetes for <em>AI&nbsp;agents</em></h1>
+  <p class="hero-sub">
+    Open-source orchestration for persistent AI agent teams.
+    Plugin-first. LLMs, channels, and tools are all extensions.
+    Squadrn wires them together.
+  </p>
+  <div class="hero-install">
+    <div class="install-box"><span>$</span> curl -fsSL https://squadrn.dev/install.sh | sh</div>
+    <a href="https://github.com/squadrn/squadrn/tree/main/docs/getting-started.md" class="btn-primary">Get Started</a>
+  </div>
+</section>
+
+<section class="features">
+  <div class="section-label">Why Squadrn</div>
+  <h2 class="section-title">Everything is a plugin</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">plugin</div>
+      <h3>Plugin-first</h3>
+      <p>LLMs, channels, storage, tools — all plugins. Swap Claude for GPT, Telegram for Slack. No vendor lock-in, ever.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">agents</div>
+      <h3>Multi-agent</h3>
+      <p>Persistent agents with roles, memory, and heartbeats. They collaborate through shared tasks, @mentions, and an activity feed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">channel</div>
+      <h3>Any channel</h3>
+      <p>Connect agents to Telegram, Slack, Discord, or build your own. Messages route through the gateway — agents don't care where they come from.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">task</div>
+      <h3>Task board</h3>
+      <p>Create, assign, and track tasks across agents. Status workflow from inbox to done, with priorities and dependencies.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">daemon</div>
+      <h3>One daemon</h3>
+      <p>A single gateway process orchestrates everything. Start it, forget it. Cron-based heartbeats keep agents alive and responsive.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">types</div>
+      <h3>Strict TypeScript</h3>
+      <p>Built on Deno 2.x with strict mode. Branded ID types, Result types for errors, and a published type contract for plugins.</p>
+    </div>
+  </div>
+</section>
+
+<section class="quickstart">
+  <div class="section-label">Quick start</div>
+  <h2 class="section-title">Three commands to running agents</h2>
+  <div class="code-block">
+    <div class="code-header">terminal</div>
+    <div class="code-body">
+<span class="comment"># Install</span>
+<span class="cmd">curl</span> <span class="flag">-fsSL</span> https://squadrn.dev/install.sh | sh
+
+<span class="comment"># Interactive setup</span>
+<span class="cmd">squadrn</span> <span class="arg">init</span>
+
+<span class="comment"># Add plugins</span>
+<span class="cmd">squadrn</span> <span class="arg">plugin add</span> <span class="flag">https://github.com/squadrn/channel-telegram</span>
+<span class="cmd">squadrn</span> <span class="arg">plugin add</span> <span class="flag">https://github.com/squadrn/llm-claude</span>
+
+<span class="comment"># Create an agent and start</span>
+<span class="cmd">squadrn</span> <span class="arg">agent create</span> jarvis
+<span class="cmd">squadrn</span> <span class="arg">start</span>
+    </div>
+  </div>
+</section>
+
+<section class="arch">
+  <div class="section-label">Architecture</div>
+  <h2 class="section-title">Minimal core, maximum extensibility</h2>
+  <div class="arch-diagram"><span class="hl">CLI</span>  squadrn start | stop | status | plugin | agent
+  │
+  ▼
+<span class="hl">GATEWAY</span>  (long-running daemon)
+  ├── Plugin Loader    ├── Event Bus       ├── Scheduler
+  ├── Session Manager  ├── Storage (SQLite) ├── Config (TOML)
+  │
+  ├──→  <span class="hl">Channel plugins</span>   Telegram · Slack · Discord
+  ├──→  <span class="hl">LLM plugins</span>       Claude · OpenAI · Ollama
+  └──→  <span class="hl">Custom plugins</span>    Tools · Storage · UI</div>
+</section>
+
+<section class="cta">
+  <h2>Ship your agent squad</h2>
+  <p>Squadrn is MIT-licensed and open source. Contributions welcome.</p>
+  <div class="cta-links">
+    <a href="https://github.com/squadrn/squadrn" class="btn-primary">View on GitHub</a>
+    <a href="https://github.com/squadrn/squadrn/tree/main/docs/getting-started.md" class="btn-outline">Read the docs</a>
+  </div>
+</section>
+
+<footer>
+  <p>Squadrn &middot; MIT License &middot; <a href="https://github.com/squadrn/squadrn">github.com/squadrn/squadrn</a></p>
+</footer>
+
+</body>
+</html>

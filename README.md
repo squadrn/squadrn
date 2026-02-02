@@ -4,10 +4,15 @@
 
 ### Kubernetes for AI agents.
 
+[![CI](https://github.com/squadrn/squadrn/actions/workflows/ci.yml/badge.svg)](https://github.com/squadrn/squadrn/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/squadrn/squadrn?label=release)](https://github.com/squadrn/squadrn/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Deno](https://img.shields.io/badge/deno-2.x-black?logo=deno)](https://deno.land)
+
 **Orchestrate persistent AI agent teams with a plugin-first architecture.** **Squadrn doesn't run
 agents or wrap LLMs — it coordinates them.**
 
-[Get Started](docs/getting-started.md) · [Architecture](docs/architecture.md) · [Docs](docs/) · [Plugins](docs/plugin-development.md)
+[Website](https://squadrn.dev) · [Get Started](docs/getting-started.md) · [Architecture](docs/architecture.md) · [Docs](docs/) · [Plugins](docs/plugin-development.md)
 
 ---
 

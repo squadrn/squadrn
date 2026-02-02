@@ -5,5 +5,8 @@
     ".": "./mod.ts",
     "./config": "./config.ts",
     "./storage": "./storage.ts"
+  },
+  "publish": {
+    "include": ["*.ts", "LICENSE", "README.md"]
   }
 }
