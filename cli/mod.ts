@@ -5,6 +5,7 @@ import { stopCommand } from "./commands/stop.ts";
 import { statusCommand } from "./commands/status.ts";
 import { pluginCommand } from "./commands/plugin.ts";
 import { agentCommand } from "./commands/agent.ts";
+import { taskCommand } from "./commands/task.ts";
 import * as out from "./utils/output.ts";
 
 const VERSION = "0.1.0";
@@ -21,6 +22,7 @@ Commands:
   status    Show current status
   plugin    Manage plugins (add, remove, list, update)
   agent     Manage agents (create, list, start, stop, logs, edit)
+  task      Manage tasks (create, list, show, assign, status, comment, board)
 
 Options:
   -h, --help      Show this help
@@ -63,6 +65,9 @@ function main(): void {
       break;
     case "agent":
       agentCommand(args._.slice(1).map(String));
+      break;
+    case "task":
+      taskCommand(args._.slice(1).map(String));
       break;
     default:
       out.error(`Unknown command: ${command}`);
