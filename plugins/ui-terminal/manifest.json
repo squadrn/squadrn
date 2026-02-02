@@ -1,0 +1,10 @@
+{
+  "name": "@squadrn/ui-terminal",
+  "version": "0.1.0",
+  "description": "Interactive terminal UI plugin for Squadrn — dashboard, agents, tasks, and activity views",
+  "author": "Squadrn",
+  "repository": "https://github.com/squadrn/ui-terminal",
+  "type": "ui",
+  "permissions": {},
+  "minCoreVersion": "0.1.0"
+}

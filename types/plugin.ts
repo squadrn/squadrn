@@ -10,6 +10,7 @@
 import type { EventHandler } from "./events.ts";
 import type { ChannelProvider } from "./channel.ts";
 import type { LLMProvider } from "./llm.ts";
+import type { QueryFilter } from "./storage.ts";
 import type { ToolProvider } from "./tool.ts";
 
 /**
@@ -142,6 +143,8 @@ export interface PluginAPI {
     set<T>(key: string, value: T): Promise<void>;
     /** Delete a key. Returns `true` if the key existed. */
     delete(key: string): Promise<boolean>;
+    /** Query entities by collection with optional filters. */
+    query<T>(collection: string, filter?: QueryFilter): Promise<T[]>;
   };
 
   /** Read-only configuration for this plugin (from `config.toml`). */

@@ -7,6 +7,7 @@ import type {
   Plugin,
   PluginAPI,
   PluginManifest,
+  QueryFilter,
   StorageAdapter,
   ToolProvider,
 } from "@squadrn/types";
@@ -233,6 +234,9 @@ export class PluginLoader {
         },
         delete(key: string): Promise<boolean> {
           return storage.delete(`${storagePrefix}${key}`);
+        },
+        query<T>(collection: string, filter?: QueryFilter): Promise<T[]> {
+          return storage.query<T>(collection, filter ?? {});
         },
       },
       config,

@@ -1,0 +1,10 @@
+{
+  "name": "@squadrn/ui-terminal",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
+  "imports": {
+    "@squadrn/types": "../../types/mod.ts",
+    "@cliffy/table": "jsr:@cliffy/table@1.0.0-rc.7",
+    "@cliffy/keypress": "jsr:@cliffy/keypress@1.0.0-rc.7"
+  }
+}
