@@ -5,7 +5,30 @@
  * where `op_net_listen_unix` is not supported.
  */
 
-const IS_WINDOWS = Deno.build.os === "windows";
+export const IS_WINDOWS = Deno.build.os === "windows";
+
+/**
+ * Check if a process with the given PID is alive.
+ * Uses SIGCONT on Unix, tasklist on Windows.
+ */
+export function isProcessAlive(pid: number): boolean {
+  try {
+    if (IS_WINDOWS) {
+      const cmd = new Deno.Command("tasklist", {
+        args: ["/FI", `PID eq ${pid}`, "/NH"],
+        stdout: "piped",
+        stderr: "null",
+      });
+      const { stdout } = cmd.outputSync();
+      const text = new TextDecoder().decode(stdout);
+      return text.includes(String(pid));
+    }
+    Deno.kill(pid, "SIGCONT");
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Derive a deterministic TCP port from a socket path (Windows only).

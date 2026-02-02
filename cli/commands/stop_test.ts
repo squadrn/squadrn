@@ -1,6 +1,12 @@
 import { assertEquals } from "@std/assert";
 import { join } from "@std/path";
-import { defaultConfig, Gateway, GatewayClient, serializeConfig } from "@squadrn/core";
+import {
+  defaultConfig,
+  Gateway,
+  GatewayClient,
+  needsSocketCleanup,
+  serializeConfig,
+} from "@squadrn/core";
 
 const SANITIZE = { sanitizeOps: false, sanitizeResources: false };
 
@@ -70,17 +76,21 @@ Deno.test({
       await new Promise((r) => setTimeout(r, 50));
 
       // Verify files exist
-      const sockStat = await Deno.stat(socketPath).catch(() => null);
-      assertEquals(sockStat !== null, true);
+      if (needsSocketCleanup()) {
+        const sockStat = await Deno.stat(socketPath).catch(() => null);
+        assertEquals(sockStat !== null, true);
+      }
       const pidStat = await Deno.stat(pidPath).catch(() => null);
       assertEquals(pidStat !== null, true);
 
       // Stop gateway
       await gw.stop();
 
-      // Socket should be cleaned by gateway
-      const sockAfter = await Deno.stat(socketPath).catch(() => null);
-      assertEquals(sockAfter, null);
+      // Socket should be cleaned by gateway (only on Unix where socket files exist)
+      if (needsSocketCleanup()) {
+        const sockAfter = await Deno.stat(socketPath).catch(() => null);
+        assertEquals(sockAfter, null);
+      }
 
       // PID file still exists (CLI is responsible for cleanup)
       // So we clean it here

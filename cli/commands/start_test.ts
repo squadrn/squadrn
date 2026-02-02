@@ -1,6 +1,13 @@
 import { assertEquals } from "@std/assert";
-import { join } from "@std/path";
-import { defaultConfig, Gateway, GatewayClient, serializeConfig } from "@squadrn/core";
+import { fromFileUrl, join } from "@std/path";
+import {
+  defaultConfig,
+  Gateway,
+  GatewayClient,
+  IS_WINDOWS,
+  isProcessAlive,
+  serializeConfig,
+} from "@squadrn/core";
 
 const SANITIZE = { sanitizeOps: false, sanitizeResources: false };
 
@@ -34,7 +41,7 @@ Deno.test({
       const { configPath, socketPath, pidPath } = await setupEnv(dir);
 
       // Spawn daemon directly (simulating what startCommand does)
-      const daemonPath = new URL("../daemon.ts", import.meta.url).pathname;
+      const daemonPath = fromFileUrl(new URL("../daemon.ts", import.meta.url));
       const cmd = new Deno.Command("deno", {
         args: [
           "run",
@@ -77,16 +84,11 @@ Deno.test({
       await new Promise((r) => setTimeout(r, 500));
 
       // Process should be gone
-      let alive = true;
-      try {
-        Deno.kill(pid, "SIGCONT");
-      } catch {
-        alive = false;
-      }
+      const alive = isProcessAlive(pid);
       // If still alive, force kill
       if (alive) {
         try {
-          Deno.kill(pid, "SIGKILL");
+          Deno.kill(pid, IS_WINDOWS ? "SIGTERM" : "SIGKILL");
         } catch {
           /* */
         }
@@ -110,14 +112,7 @@ Deno.test({
       const pidText = await Deno.readTextFile(pidPath);
       const pid = parseInt(pidText.trim(), 10);
 
-      let processAlive = false;
-      try {
-        Deno.kill(pid, "SIGCONT");
-        processAlive = true;
-      } catch {
-        /* */
-      }
-
+      const processAlive = isProcessAlive(pid);
       assertEquals(processAlive, true);
 
       await new Promise((r) => setTimeout(r, 50));
@@ -139,14 +134,7 @@ Deno.test(
       // Write a PID that definitely doesn't exist
       await Deno.writeTextFile(pidPath, "999999999");
 
-      let processAlive = false;
-      try {
-        Deno.kill(999999999, "SIGCONT");
-        processAlive = true;
-      } catch {
-        /* */
-      }
-
+      const processAlive = isProcessAlive(999999999);
       assertEquals(processAlive, false);
 
       // Clean up

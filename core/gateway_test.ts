@@ -3,6 +3,7 @@ import { join } from "@std/path";
 import { Gateway } from "./gateway.ts";
 import { GatewayClient } from "./gateway_client.ts";
 import { defaultConfig, serializeConfig } from "./config_manager.ts";
+import { needsSocketCleanup } from "./ipc.ts";
 
 const SANITIZE = { sanitizeOps: false, sanitizeResources: false };
 
@@ -240,13 +241,17 @@ Deno.test({
 
       await gw.start(configPath, socketPath);
 
-      const stat = await Deno.stat(socketPath).catch(() => null);
-      assertEquals(stat !== null, true);
+      if (needsSocketCleanup()) {
+        const stat = await Deno.stat(socketPath).catch(() => null);
+        assertEquals(stat !== null, true);
+      }
 
       await gw.stop();
 
-      const statAfter = await Deno.stat(socketPath).catch(() => null);
-      assertEquals(statAfter, null);
+      if (needsSocketCleanup()) {
+        const statAfter = await Deno.stat(socketPath).catch(() => null);
+        assertEquals(statAfter, null);
+      }
     });
   },
 });

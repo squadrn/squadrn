@@ -1,16 +1,7 @@
-import { GatewayClient } from "@squadrn/core";
+import { fromFileUrl } from "@std/path";
+import { GatewayClient, isProcessAlive } from "@squadrn/core";
 import { CONFIG_PATH, PID_PATH, SOCKET_PATH } from "../utils/paths.ts";
 import * as out from "../utils/output.ts";
-
-/** Check if a process with the given PID is alive. */
-function isProcessAlive(pid: number): boolean {
-  try {
-    Deno.kill(pid, "SIGCONT");
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 /** Ping the daemon via socket to confirm it's responsive. */
 async function pingDaemon(): Promise<boolean> {
@@ -31,8 +22,7 @@ async function waitForSocket(timeoutMs: number): Promise<boolean> {
 
 /** Resolve the path to daemon.ts relative to the current module. */
 function daemonScriptPath(): string {
-  const url = new URL("../daemon.ts", import.meta.url);
-  return url.pathname;
+  return fromFileUrl(new URL("../daemon.ts", import.meta.url));
 }
 
 export async function startCommand(): Promise<void> {

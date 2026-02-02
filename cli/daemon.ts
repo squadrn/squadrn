@@ -38,7 +38,9 @@ const shutdown = async () => {
 };
 
 Deno.addSignalListener("SIGINT", shutdown);
-Deno.addSignalListener("SIGTERM", shutdown);
+if (Deno.build.os !== "windows") {
+  Deno.addSignalListener("SIGTERM", shutdown);
+}
 
 // Keep alive
 await new Promise(() => {});
