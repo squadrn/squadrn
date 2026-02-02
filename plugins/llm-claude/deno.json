@@ -1,0 +1,8 @@
+{
+  "name": "@squadrn/llm-claude",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
+  "imports": {
+    "@squadrn/types": "../../types/mod.ts"
+  }
+}

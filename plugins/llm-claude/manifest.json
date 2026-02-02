@@ -1,0 +1,13 @@
+{
+  "name": "@squadrn/llm-claude",
+  "version": "0.1.0",
+  "description": "Claude (Anthropic) LLM plugin for Squadrn — completions, streaming, and tool use via the Messages API",
+  "author": "Squadrn",
+  "repository": "https://github.com/squadrn/llm-claude",
+  "type": "llm",
+  "permissions": {
+    "net": ["api.anthropic.com"],
+    "env": ["ANTHROPIC_API_KEY"]
+  },
+  "minCoreVersion": "0.1.0"
+}
