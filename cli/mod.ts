@@ -4,6 +4,7 @@ import { startCommand } from "./commands/start.ts";
 import { stopCommand } from "./commands/stop.ts";
 import { statusCommand } from "./commands/status.ts";
 import { pluginCommand } from "./commands/plugin.ts";
+import { agentCommand } from "./commands/agent.ts";
 import * as out from "./utils/output.ts";
 
 const VERSION = "0.1.0";
@@ -19,6 +20,7 @@ Commands:
   stop      Stop the gateway daemon
   status    Show current status
   plugin    Manage plugins (add, remove, list, update)
+  agent     Manage agents (create, list, start, stop, logs, edit)
 
 Options:
   -h, --help      Show this help
@@ -58,6 +60,9 @@ function main(): void {
       break;
     case "plugin":
       pluginCommand(args._.slice(1).map(String));
+      break;
+    case "agent":
+      agentCommand(args._.slice(1).map(String));
       break;
     default:
       out.error(`Unknown command: ${command}`);
