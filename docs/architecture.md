@@ -34,11 +34,11 @@ Squadrn is structured as three workspace modules that form a layered architectur
                                  │
                     ┌────────────┼─────────────┐
                     ▼            ▼             ▼
-            ┌──────────┐   ┌──────────┐   ┌──────────┐
-            │  Plugin  │   │  Plugin  │   │  Plugin  │
-            │ Channel  │   │   LLM    │   │  Custom  │
-            │ Telegram │   │  Claude  │   │   ...    │
-            └──────────┘   └──────────┘   └──────────┘
+            ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐
+            │  Plugin  │   │  Plugin  │   │  Plugin  │   │  Plugin  │
+            │ Channel  │   │   LLM    │   │   UI     │   │  Custom  │
+            │ Telegram │   │  Claude  │   │ Terminal │   │   ...    │
+            └──────────┘   └──────────┘   └──────────┘   └──────────┘
 ```
 
 ## Workspace Modules
@@ -172,6 +172,8 @@ Gateway lifecycle is tracked via a PID file at `~/.squadrn/gateway.pid`.
 Each plugin receives a `PluginAPI` instance that provides:
 
 - **Namespaced storage** — keys are automatically prefixed (e.g., `plugin:telegram:state`)
+- **Collection queries** — `storage.query()` for reading agents, tasks, activities, and other
+  entities across the system
 - **Scoped event access** — subscribe to and emit gateway events
 - **Read-only config** — only the plugin's own section from `config.toml`
 - **Structured logger** — auto-tagged with plugin name

@@ -18,6 +18,17 @@ Verify the installation:
 squadrn --version
 ```
 
+### Uninstalling
+
+To remove Squadrn completely:
+
+```bash
+curl -fsSL https://squadrn.dev/uninstall.sh | sh
+```
+
+This stops the gateway if running, removes the binary, and optionally deletes all data at
+`~/.squadrn/` (config, database, sessions, plugins).
+
 ## Initial Setup
 
 Run the interactive setup wizard:

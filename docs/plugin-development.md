@@ -114,10 +114,19 @@ Key-value storage automatically namespaced to your plugin:
 await core.storage.set("last_sync", Date.now());
 const lastSync = await core.storage.get<number>("last_sync");
 await core.storage.delete("last_sync");
+
+// Query entities by collection with optional filters
+const agents = await core.storage.query<Agent>("agents", { limit: 10 });
+const urgentTasks = await core.storage.query<Task>("tasks", {
+  where: { priority: "urgent" },
+  orderBy: "createdAt",
+});
 ```
 
 Keys are prefixed internally — `core.storage.get("state")` in plugin `channel-telegram` resolves to
-`plugin:channel-telegram:state`.
+`plugin:channel-telegram:state`. The `query()` method operates on global collections (e.g.,
+`"agents"`, `"tasks"`, `"activities"`) and is not namespaced — useful for UI and monitoring plugins
+that need to read cross-cutting data.
 
 ### Config
 
@@ -310,6 +319,48 @@ const plugin: Plugin = {
 
 export default plugin;
 ```
+
+## Building a UI Plugin
+
+UI plugins render dashboards, monitoring views, or interactive interfaces. They subscribe to gateway
+events for real-time updates and use `storage.query()` to load initial state.
+
+```typescript
+import type { Agent, Plugin, PluginAPI, Task } from "@squadrn/types";
+import manifest from "./manifest.json" with { type: "json" };
+
+const plugin: Plugin = {
+  manifest, // type: "ui"
+
+  async register(core: PluginAPI) {
+    // Load current state from storage
+    const agents = await core.storage.query<Agent>("agents", {});
+    const tasks = await core.storage.query<Task>("tasks", {});
+
+    // Subscribe to real-time events
+    core.events.on("agent:started", async (payload) => {
+      // Update UI with new agent status
+    });
+
+    core.events.on("task:created", async (payload) => {
+      // Update UI with new task
+    });
+
+    // Launch your rendering loop (TUI, web server, etc.)
+    core.log.info("UI plugin started");
+  },
+
+  async unregister() {
+    // Stop rendering, restore terminal, close server
+  },
+};
+
+export default plugin;
+```
+
+The official `@squadrn/ui-terminal` plugin is a full example of this pattern — an interactive
+terminal UI with keyboard navigation, multiple views (dashboard, agents, tasks, activity log), and
+real-time event updates. See `plugins/ui-terminal/` in the repository.
 
 ## Installing Your Plugin
 

@@ -58,6 +58,8 @@ squadrn start
 That's it. Add agents, connect channels, assign tasks. See the full
 [Getting Started guide](docs/getting-started.md).
 
+To uninstall: `curl -fsSL https://squadrn.dev/uninstall.sh | sh`
+
 ## Architecture
 
 ```
@@ -71,7 +73,8 @@ Storage Adapter · Config Manager
        │
        ├──→  Channel plugins   (Telegram, Slack, ...)
        ├──→  LLM plugins       (Claude, OpenAI, ...)
-       └──→  Custom plugins    (tools, storage, UI)
+       ├──→  UI plugins        (Terminal UI, ...)
+       └──→  Custom plugins    (tools, storage, ...)
 ```
 
 **Message flow:** Channel receives message → Gateway routes to agent → Agent thinks via LLM →
@@ -107,7 +110,7 @@ Everything beyond the core is a plugin. Six types:
 | `llm`     | Claude, OpenAI, local models |
 | `storage` | Postgres, Redis              |
 | `tool`    | Web search, code execution   |
-| `ui`      | Dashboard, monitoring        |
+| `ui`      | Terminal UI, web dashboard   |
 | `custom`  | Anything else                |
 
 Each plugin declares its Deno permissions upfront and gets a sandboxed API with namespaced storage,
@@ -124,10 +127,14 @@ HTTP**
 
 ```
 squadrn/
-├── types/   @squadrn/types   — Branded IDs, shared interfaces (the plugin contract)
-├── core/    @squadrn/core    — Gateway daemon engine
-├── cli/     @squadrn/cli     — CLI entry point and commands
-└── docs/                     — Documentation
+├── types/     @squadrn/types          — Branded IDs, shared interfaces (the plugin contract)
+├── core/      @squadrn/core           — Gateway daemon engine
+├── cli/       @squadrn/cli            — CLI entry point and commands
+├── plugins/
+│   ├── channel-telegram/              — Telegram channel plugin
+│   ├── llm-claude/                    — Claude LLM plugin
+│   └── ui-terminal/                   — Interactive terminal UI plugin
+└── docs/                              — Documentation
 ```
 
 ## Documentation
