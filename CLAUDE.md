@@ -84,6 +84,18 @@ assigned → in_progress → review → done/blocked, with priorities, dependenc
 
 All IDs are branded string types to prevent misuse across entity boundaries.
 
+## Verification (MANDATORY)
+
+Before considering any code change complete, ALWAYS run these three checks and fix any failures:
+
+```bash
+deno fmt --check    # Format check
+deno lint           # Lint check
+deno task test      # Run all tests
+```
+
+Never confirm changes are done until all three pass with zero errors.
+
 ## Conventions
 
 - `Result<T, E>` type for expected failures (not exceptions). Exceptions for unexpected errors only.
