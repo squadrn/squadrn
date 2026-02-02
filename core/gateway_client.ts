@@ -1,4 +1,5 @@
 import type { GatewayCommand, GatewayResponse } from "./gateway.ts";
+import { connectIpc } from "./ipc.ts";
 
 /** Client for communicating with the gateway daemon over its Unix socket. */
 export class GatewayClient {
@@ -12,7 +13,7 @@ export class GatewayClient {
   async send(cmd: GatewayCommand): Promise<GatewayResponse> {
     let conn: Deno.Conn;
     try {
-      conn = await Deno.connect({ transport: "unix", path: this.#socketPath });
+      conn = await connectIpc(this.#socketPath);
     } catch {
       return { ok: false, error: "Cannot connect to gateway (is it running?)" };
     }

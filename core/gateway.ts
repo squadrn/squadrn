@@ -5,6 +5,7 @@ import type { StorageAdapter } from "./storage/adapter.ts";
 import { createLogger } from "./logger.ts";
 import { PluginLoader } from "./plugin_loader.ts";
 import type { Logger } from "@squadrn/types";
+import { listenIpc, needsSocketCleanup } from "./ipc.ts";
 
 /** JSON command sent over the Unix socket. */
 export interface GatewayCommand {
@@ -104,7 +105,7 @@ export class Gateway {
     // 5. Start Unix socket server
     this.#socketPath = socketPath;
     await this.#cleanStaleSocket(socketPath);
-    this.#listener = Deno.listen({ transport: "unix", path: socketPath });
+    this.#listener = listenIpc(socketPath);
     this.#acceptConnections();
 
     this.#running = true;
@@ -152,9 +153,11 @@ export class Gateway {
       this.#listener = null;
     }
     if (this.#socketPath) {
-      try {
-        await Deno.remove(this.#socketPath);
-      } catch { /* already removed */ }
+      if (needsSocketCleanup()) {
+        try {
+          await Deno.remove(this.#socketPath);
+        } catch { /* already removed */ }
+      }
       this.#socketPath = null;
     }
 
@@ -209,6 +212,7 @@ export class Gateway {
 
   /** Remove a stale socket file if it exists. */
   async #cleanStaleSocket(path: string): Promise<void> {
+    if (!needsSocketCleanup()) return;
     try {
       await Deno.remove(path);
     } catch { /* doesn't exist, fine */ }
