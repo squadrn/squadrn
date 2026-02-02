@@ -58,8 +58,8 @@ Deno.test({
       const child = cmd.spawn();
       child.unref();
 
-      // Wait for socket
-      const deadline = Date.now() + 5000;
+      // Wait for socket (Windows CI cold-starts Deno slowly)
+      const deadline = Date.now() + (IS_WINDOWS ? 15000 : 5000);
       let ready = false;
       while (Date.now() < deadline) {
         const client = new GatewayClient(socketPath);
