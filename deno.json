@@ -1,5 +1,5 @@
 {
-  "workspace": ["./types", "./core", "./cli"],
+  "workspace": ["./types", "./core", "./cli", "./plugins/channel-telegram"],
   "tasks": {
     "test": "deno test --quiet --allow-all"
   },

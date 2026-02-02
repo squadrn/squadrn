@@ -1,0 +1,13 @@
+{
+  "name": "@squadrn/channel-telegram",
+  "version": "0.1.0",
+  "description": "Telegram channel plugin for Squadrn — bridges Telegram Bot API with the gateway via long polling",
+  "author": "Squadrn",
+  "repository": "https://github.com/squadrn/channel-telegram",
+  "type": "channel",
+  "permissions": {
+    "net": ["api.telegram.org"],
+    "env": ["TELEGRAM_BOT_TOKEN"]
+  },
+  "minCoreVersion": "0.1.0"
+}
