@@ -49,26 +49,23 @@ fi
 
 # Ask about data directory
 if [ -d "$INSTALL_DIR" ]; then
-  if [ -t 0 ]; then
+  CONFIRM="${SQUADRN_REMOVE_DATA:-}"
+  if [ -z "$CONFIRM" ] && [ -t 0 ]; then
     printf "\n  Remove all Squadrn data at ${BOLD}%s${RESET}?\n" "$INSTALL_DIR"
     printf "  This includes config, database, sessions, and plugins.\n"
     printf "  [y/N] "
     read -r CONFIRM
-    case "$CONFIRM" in
-      y|Y|yes|YES)
-        rm -rf "$INSTALL_DIR"
-        info "Removed data directory: $INSTALL_DIR"
-        ;;
-      *)
-        warn "Kept data directory: $INSTALL_DIR"
-        warn "Remove it manually with: rm -rf $INSTALL_DIR"
-        ;;
-    esac
-  else
-    # Non-interactive: keep data, warn the user
-    warn "Data directory kept: $INSTALL_DIR"
-    warn "Remove it manually with: rm -rf $INSTALL_DIR"
   fi
+  case "$CONFIRM" in
+    y|Y|yes|YES)
+      rm -rf "$INSTALL_DIR"
+      info "Removed data directory: $INSTALL_DIR"
+      ;;
+    *)
+      warn "Kept data directory: $INSTALL_DIR"
+      warn "Remove it manually with: rm -rf $INSTALL_DIR"
+      ;;
+  esac
 else
   info "No data directory found at $INSTALL_DIR"
 fi
