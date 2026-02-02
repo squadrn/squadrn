@@ -3,6 +3,7 @@ import { initCommand } from "./commands/init.ts";
 import { startCommand } from "./commands/start.ts";
 import { stopCommand } from "./commands/stop.ts";
 import { statusCommand } from "./commands/status.ts";
+import { pluginCommand } from "./commands/plugin.ts";
 import * as out from "./utils/output.ts";
 
 const VERSION = "0.1.0";
@@ -17,6 +18,7 @@ Commands:
   start     Start the gateway daemon
   stop      Stop the gateway daemon
   status    Show current status
+  plugin    Manage plugins (add, remove, list, update)
 
 Options:
   -h, --help      Show this help
@@ -53,6 +55,9 @@ function main(): void {
       break;
     case "status":
       statusCommand();
+      break;
+    case "plugin":
+      pluginCommand(args._.slice(1).map(String));
       break;
     default:
       out.error(`Unknown command: ${command}`);

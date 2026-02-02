@@ -295,7 +295,7 @@ const REQUIRED_MANIFEST_FIELDS: (keyof PluginManifest)[] = [
 
 const VALID_PLUGIN_TYPES = ["channel", "llm", "storage", "tool", "ui", "custom"];
 
-function validateManifest(manifest: unknown): asserts manifest is PluginManifest {
+export function validateManifest(manifest: unknown): asserts manifest is PluginManifest {
   if (!manifest || typeof manifest !== "object") {
     throw new Error("Manifest must be a non-null object");
   }
@@ -327,7 +327,7 @@ function validateManifest(manifest: unknown): asserts manifest is PluginManifest
  * Convert a GitHub URL to a raw.githubusercontent.com URL for manifest.json.
  * Supports: https://github.com/user/repo
  */
-function toRawManifestUrl(githubUrl: string): string {
+export function toRawManifestUrl(githubUrl: string): string {
   const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
   if (!match) throw new Error(`Invalid GitHub URL: ${githubUrl}`);
   const [, owner, repo] = match;
@@ -354,7 +354,7 @@ export async function readPluginsJson(
   }
 }
 
-async function writePluginsJson(
+export async function writePluginsJson(
   path: string,
   data: Record<string, InstalledPlugin>,
 ): Promise<void> {

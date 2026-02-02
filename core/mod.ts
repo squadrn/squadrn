@@ -20,5 +20,12 @@ export type {
 export type { StorageAdapter, QueryFilter, Transaction } from "./storage/adapter.ts";
 export { SqliteStorage } from "./storage/sqlite.ts";
 export { StructuredLogger, createLogger } from "./logger.ts";
-export { PluginLoader, PluginLoadError, readPluginsJson } from "./plugin_loader.ts";
+export {
+  PluginLoader,
+  PluginLoadError,
+  readPluginsJson,
+  writePluginsJson,
+  toRawManifestUrl,
+  validateManifest,
+} from "./plugin_loader.ts";
 export type { InstalledPlugin } from "./plugin_loader.ts";
