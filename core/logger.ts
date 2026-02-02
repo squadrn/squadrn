@@ -19,6 +19,16 @@ const LEVEL_COLORS: Record<LogLevel, string> = {
 const RESET = "\x1b[0m";
 const DIM = "\x1b[2m";
 
+function detectLogLevel(): LogLevel {
+  try {
+    const level = Deno.env.get("SQUADRN_LOG_LEVEL");
+    if (level && level in LEVEL_ORDER) return level as LogLevel;
+  } catch {
+    // Permission denied
+  }
+  return "debug";
+}
+
 function detectDevMode(): boolean {
   try {
     const env = Deno.env.get("SQUADRN_ENV");
@@ -69,7 +79,7 @@ export class StructuredLogger implements Logger {
     },
   ) {
     this.#namespace = namespace;
-    this.#minLevel = options?.minLevel ?? "debug";
+    this.#minLevel = options?.minLevel ?? detectLogLevel();
     this.#devMode = options?.devMode ?? detectDevMode();
     this.#output = options?.output ?? ((line: string) => console.log(line));
   }

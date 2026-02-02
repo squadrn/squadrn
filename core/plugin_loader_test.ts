@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "@std/assert";
+import { assertEquals, assertRejects, assertStringIncludes } from "@std/assert";
 import type {
   ChannelProvider,
   IncomingMessage,
@@ -10,7 +10,13 @@ import type {
 } from "@squadrn/types";
 import { EventBus } from "./event_bus.ts";
 import { SqliteStorage } from "./storage/sqlite.ts";
-import { InstalledPlugin, PluginLoader } from "./plugin_loader.ts";
+import {
+  InstalledPlugin,
+  isLocalPath,
+  PluginLoader,
+  toRawManifestUrl,
+  toRawModUrl,
+} from "./plugin_loader.ts";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -355,3 +361,70 @@ Deno.test(
     assertEquals(hasRegisterLLM, false);
   },
 );
+
+// ── Local path helpers ─────────────────────────────────────────────────────
+
+Deno.test("isLocalPath - detects local paths", () => {
+  assertEquals(isLocalPath("./plugins/foo"), true);
+  assertEquals(isLocalPath("../plugins/foo"), true);
+  assertEquals(isLocalPath("/home/user/plugins/foo"), true);
+  assertEquals(isLocalPath("https://github.com/org/repo"), false);
+  assertEquals(isLocalPath("http://github.com/org/repo"), false);
+});
+
+Deno.test("toRawManifestUrl - local path returns manifest.json path", () => {
+  const result = toRawManifestUrl("/home/user/plugins/foo");
+  assertEquals(result, "/home/user/plugins/foo/manifest.json");
+});
+
+Deno.test("toRawManifestUrl - GitHub URL returns raw URL", () => {
+  const result = toRawManifestUrl("https://github.com/org/repo");
+  assertStringIncludes(result, "raw.githubusercontent.com");
+  assertStringIncludes(result, "manifest.json");
+});
+
+Deno.test("toRawModUrl - local path returns file:// URL", () => {
+  const result = toRawModUrl("/home/user/plugins/foo");
+  assertEquals(result, "file:///home/user/plugins/foo/mod.ts");
+});
+
+Deno.test("toRawModUrl - GitHub URL returns raw URL", () => {
+  const result = toRawModUrl("https://github.com/org/repo");
+  assertStringIncludes(result, "raw.githubusercontent.com");
+  assertStringIncludes(result, "mod.ts");
+});
+
+Deno.test("PluginLoader - install from local path", async () => {
+  const { loader } = makeLoader();
+  const pluginsPath = tmpPluginsJson();
+  const tmpDir = Deno.makeTempDirSync();
+
+  // Create a fake local plugin with manifest.json
+  const manifest: PluginManifest = {
+    name: "@test/local-plugin",
+    version: "0.5.0",
+    description: "A local test plugin",
+    author: "Test",
+    repository: "https://github.com/test/local-plugin",
+    type: "custom",
+    permissions: {},
+    minCoreVersion: "0.1.0",
+  };
+  await Deno.writeTextFile(
+    `${tmpDir}/manifest.json`,
+    JSON.stringify(manifest),
+  );
+
+  const result = await loader.install(tmpDir, pluginsPath);
+
+  assertEquals(result.name, "@test/local-plugin");
+  assertEquals(result.version, "0.5.0");
+
+  // Verify plugins.json was written with the local path
+  const installed = JSON.parse(await Deno.readTextFile(pluginsPath));
+  assertEquals(installed["@test/local-plugin"].url, tmpDir);
+
+  // Cleanup
+  await Deno.remove(tmpDir, { recursive: true });
+  await Deno.remove(pluginsPath);
+});

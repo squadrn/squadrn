@@ -57,27 +57,41 @@ export class PluginLoader {
    * Install a plugin from a GitHub URL.
    * Fetches manifest.json, validates it, and persists to plugins.json.
    */
-  async install(githubUrl: string, pluginsJsonPath: string): Promise<PluginManifest> {
-    const manifestUrl = toRawManifestUrl(githubUrl);
-    this.#log.info("Fetching manifest", { url: manifestUrl });
+  async install(source: string, pluginsJsonPath: string): Promise<PluginManifest> {
+    const manifestPath = toRawManifestUrl(source);
+    this.#log.info("Fetching manifest", { url: manifestPath });
 
-    const resp = await fetch(manifestUrl);
-    if (!resp.ok) {
-      throw new PluginError(
-        "unknown",
-        "PLUGIN_MANIFEST_FETCH_FAILED",
-        `Failed to fetch manifest: HTTP ${resp.status}`,
-      );
+    let manifest: PluginManifest;
+    if (isLocalPath(source)) {
+      try {
+        const text = await Deno.readTextFile(manifestPath);
+        manifest = JSON.parse(text) as PluginManifest;
+      } catch (err) {
+        throw new PluginError(
+          "unknown",
+          "PLUGIN_MANIFEST_FETCH_FAILED",
+          `Failed to read local manifest at ${manifestPath}: ${(err as Error).message}`,
+        );
+      }
+    } else {
+      const resp = await fetch(manifestPath);
+      if (!resp.ok) {
+        throw new PluginError(
+          "unknown",
+          "PLUGIN_MANIFEST_FETCH_FAILED",
+          `Failed to fetch manifest: HTTP ${resp.status}`,
+        );
+      }
+      manifest = (await resp.json()) as PluginManifest;
     }
-    const manifest = (await resp.json()) as PluginManifest;
     validateManifest(manifest);
 
     // Read existing plugins.json
     const installed = await readPluginsJson(pluginsJsonPath);
 
-    // Add or update entry
+    // Store the source (local path or GitHub URL)
     installed[manifest.name] = {
-      url: githubUrl,
+      url: source,
       manifest,
       installedAt: new Date().toISOString(),
     };
@@ -323,20 +337,37 @@ export function validateManifest(manifest: unknown): asserts manifest is PluginM
 
 // ── URL helpers ───────────────────────────────────────────────────────────
 
+/** Check if a source string is a local file path (absolute or relative). */
+export function isLocalPath(source: string): boolean {
+  return source.startsWith("/") || source.startsWith("./") || source.startsWith("../");
+}
+
 /**
- * Convert a GitHub URL to a raw.githubusercontent.com URL for manifest.json.
- * Supports: https://github.com/user/repo
+ * Convert a plugin source to a manifest URL or file path.
+ * Supports GitHub URLs and local paths.
  */
-export function toRawManifestUrl(githubUrl: string): string {
-  const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
-  if (!match) throw new Error(`Invalid GitHub URL: ${githubUrl}`);
+export function toRawManifestUrl(source: string): string {
+  if (isLocalPath(source)) {
+    const resolved = source.startsWith("/") ? source : `${Deno.cwd()}/${source}`;
+    return `${resolved}/manifest.json`;
+  }
+  const match = source.match(/github\.com\/([^/]+)\/([^/]+)/);
+  if (!match) throw new Error(`Invalid plugin source: ${source}`);
   const [, owner, repo] = match;
   return `https://raw.githubusercontent.com/${owner}/${repo}/main/manifest.json`;
 }
 
-function toRawModUrl(githubUrl: string): string {
-  const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
-  if (!match) throw new Error(`Invalid GitHub URL: ${githubUrl}`);
+/**
+ * Convert a plugin source to a mod.ts import URL or file path.
+ * Supports GitHub URLs and local paths.
+ */
+export function toRawModUrl(source: string): string {
+  if (isLocalPath(source)) {
+    const resolved = source.startsWith("/") ? source : `${Deno.cwd()}/${source}`;
+    return `file://${resolved}/mod.ts`;
+  }
+  const match = source.match(/github\.com\/([^/]+)\/([^/]+)/);
+  if (!match) throw new Error(`Invalid plugin source: ${source}`);
   const [, owner, repo] = match;
   return `https://raw.githubusercontent.com/${owner}/${repo}/main/mod.ts`;
 }

@@ -49,8 +49,8 @@ export class TUIApp {
     this.#write("\x1b[?25l"); // hide cursor
     this.#render();
 
-    // Key loop
-    await this.#keyLoop();
+    // Key loop runs in the background (don't block register())
+    this.#keyLoop();
   }
 
   async stop(): Promise<void> {
@@ -101,7 +101,7 @@ export class TUIApp {
     else if (key === "\t") this.#nextView();
     else if (key === "q") {
       await this.stop();
-      return;
+      Deno.exit(0);
     } // Navigation within views
     else if (key === "\x1b[A") {
       // Arrow up

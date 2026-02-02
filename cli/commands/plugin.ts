@@ -2,6 +2,7 @@ import { Confirm } from "@cliffy/prompt";
 import { bold, cyan, dim, green, yellow } from "@std/fmt/colors";
 import {
   GatewayClient,
+  isLocalPath,
   readPluginsJson,
   toRawManifestUrl,
   validateManifest,
@@ -16,7 +17,7 @@ const PLUGIN_HELP = `
 Usage: squadrn plugin <subcommand> [options]
 
 Subcommands:
-  add <github-url>     Install a plugin from GitHub
+  add <source>         Install a plugin from GitHub URL or local path
   remove <name>        Uninstall a plugin
   list                 List installed plugins
   update [name]        Update plugin(s) to latest version
@@ -50,35 +51,46 @@ export async function pluginCommand(args: string[]): Promise<void> {
 
 // ── add ─────────────────────────────────────────────────────────────────────
 
-async function pluginAdd(url: string | undefined): Promise<void> {
-  if (!url) {
-    out.error("Usage: squadrn plugin add <github-url>");
-    out.info("Example: squadrn plugin add https://github.com/squadrn/channel-telegram");
+async function pluginAdd(source: string | undefined): Promise<void> {
+  if (!source) {
+    out.error("Usage: squadrn plugin add <source>");
+    out.info("Examples:");
+    out.info("  squadrn plugin add https://github.com/squadrn/channel-telegram");
+    out.info("  squadrn plugin add ./plugins/ui-terminal");
     return;
   }
 
-  // Validate URL format
-  if (!url.match(/^https?:\/\/github\.com\/[^/]+\/[^/]+/)) {
-    out.error("Invalid URL. Must be a GitHub repository URL.");
+  const local = isLocalPath(source);
+
+  // Validate source format
+  if (!local && !source.match(/^https?:\/\/github\.com\/[^/]+\/[^/]+/)) {
+    out.error("Invalid source. Must be a GitHub URL or local path (./  ../  /).");
     out.info("Example: https://github.com/squadrn/channel-telegram");
     return;
   }
 
   // Fetch manifest
-  const manifestUrl = toRawManifestUrl(url);
-  out.info(`Fetching manifest from ${dim(manifestUrl)}...`);
+  const manifestPath = toRawManifestUrl(source);
+  out.info(`Reading manifest from ${dim(manifestPath)}...`);
 
   let manifest: PluginManifest;
   try {
-    const resp = await fetch(manifestUrl);
-    if (!resp.ok) {
-      out.error(`Failed to fetch manifest (HTTP ${resp.status})`);
-      out.info("Make sure the repository has a manifest.json in the root.");
-      return;
+    if (local) {
+      const text = await Deno.readTextFile(manifestPath);
+      const json = JSON.parse(text);
+      validateManifest(json);
+      manifest = json;
+    } else {
+      const resp = await fetch(manifestPath);
+      if (!resp.ok) {
+        out.error(`Failed to fetch manifest (HTTP ${resp.status})`);
+        out.info("Make sure the repository has a manifest.json in the root.");
+        return;
+      }
+      const json = await resp.json();
+      validateManifest(json);
+      manifest = json;
     }
-    const json = await resp.json();
-    validateManifest(json);
-    manifest = json;
   } catch (err) {
     out.displayError(err);
     return;
@@ -147,7 +159,7 @@ async function pluginAdd(url: string | undefined): Promise<void> {
 
   // Save to plugins.json
   installed[manifest.name] = {
-    url,
+    url: source,
     manifest,
     installedAt: new Date().toISOString(),
   };
@@ -286,18 +298,25 @@ async function pluginUpdate(name: string | undefined): Promise<void> {
 
   for (const [pluginName, entry] of entries) {
     const e = entry as InstalledPlugin;
-    const manifestUrl = toRawManifestUrl(e.url);
+    const manifestPath = toRawManifestUrl(e.url);
 
     try {
-      const resp = await fetch(manifestUrl);
-      if (!resp.ok) {
-        out.warn(`  ${pluginName}: failed to fetch manifest (HTTP ${resp.status})`);
-        continue;
+      let newManifest: PluginManifest;
+      if (isLocalPath(e.url)) {
+        const text = await Deno.readTextFile(manifestPath);
+        const json = JSON.parse(text);
+        validateManifest(json);
+        newManifest = json as PluginManifest;
+      } else {
+        const resp = await fetch(manifestPath);
+        if (!resp.ok) {
+          out.warn(`  ${pluginName}: failed to fetch manifest (HTTP ${resp.status})`);
+          continue;
+        }
+        const json = await resp.json();
+        validateManifest(json);
+        newManifest = json as PluginManifest;
       }
-
-      const json = await resp.json();
-      validateManifest(json);
-      const newManifest = json as PluginManifest;
 
       if (newManifest.version !== e.manifest.version) {
         console.log(

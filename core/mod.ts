@@ -47,6 +47,7 @@ export type { QueryFilter, StorageAdapter, Transaction } from "./storage/adapter
 export { SqliteStorage } from "./storage/sqlite.ts";
 export { createLogger, StructuredLogger } from "./logger.ts";
 export {
+  isLocalPath,
   PluginLoader,
   readPluginsJson,
   toRawManifestUrl,
