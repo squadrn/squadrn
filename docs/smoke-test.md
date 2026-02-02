@@ -40,7 +40,7 @@ squadrn plugin list
 ### 4. Create an agent
 
 ```bash
-squadrn agent create jarvis
+squadrn agent create scout
 # Follow prompts: set role, pick LLM (claude), pick channel (telegram)
 # Expected: agent config added to config.toml, SOUL.md created
 ```
@@ -52,7 +52,7 @@ export ANTHROPIC_API_KEY="sk-..."
 export TELEGRAM_BOT_TOKEN="123456:ABC..."
 squadrn start
 squadrn status
-# Expected: gateway running, jarvis agent idle, plugins loaded
+# Expected: gateway running, scout agent idle, plugins loaded
 ```
 
 ### 6. Send a message
@@ -68,7 +68,7 @@ Send a message to the Telegram bot. Verify:
 ```bash
 squadrn task create
 # Enter title, description, priority
-squadrn task assign <task-id> jarvis
+squadrn task assign <task-id> scout
 squadrn task list
 # Expected: task shows as "assigned"
 ```

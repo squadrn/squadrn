@@ -328,11 +328,11 @@ Deno.test("addComment - adds comment to task", async () => {
 
   const comment = await mgr.addComment(task.id, {
     authorId: "agent-1",
-    authorName: "Jarvis",
+    authorName: "Scout",
     content: "Working on it!",
   });
 
-  assertEquals(comment.authorName, "Jarvis");
+  assertEquals(comment.authorName, "Scout");
   assertEquals(comment.content, "Working on it!");
   assertEquals(comment.mentions, []);
 
@@ -346,7 +346,7 @@ Deno.test("addComment - parses @mentions", async () => {
 
   const comment = await mgr.addComment(task.id, {
     authorId: "agent-1",
-    authorName: "Jarvis",
+    authorName: "Scout",
     content: "Hey @loki, can you review? Also cc @nova",
   });
 

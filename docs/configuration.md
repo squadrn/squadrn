@@ -49,13 +49,13 @@ path = "~/.squadrn/data.db"
 Define one section per agent. The key (`<name>`) is the agent's identifier.
 
 ```toml
-[agents.jarvis]
-name = "Jarvis"
+[agents.scout]
+name = "Scout"
 role = "Squad Lead"
 llm = "claude"
 channels = ["telegram"]
 heartbeat = "*/15 * * * *"
-soul_file = "~/.squadrn/agents/jarvis/SOUL.md"
+soul_file = "~/.squadrn/agents/scout/SOUL.md"
 ```
 
 | Field       | Type       | Default          | Description                                                      |
@@ -94,13 +94,13 @@ log_level = "info"
 adapter = "sqlite"
 path = "~/.squadrn/data.db"
 
-[agents.jarvis]
-name = "Jarvis"
+[agents.scout]
+name = "Scout"
 role = "Squad Lead"
 llm = "claude"
 channels = ["telegram"]
 heartbeat = "*/15 * * * *"
-soul_file = "~/.squadrn/agents/jarvis/SOUL.md"
+soul_file = "~/.squadrn/agents/scout/SOUL.md"
 
 [agents.loki]
 name = "Loki"

@@ -269,13 +269,13 @@ Deno.test("startListening - records activity on agent:heartbeat event", async ()
   const { mgr, events } = setup();
   mgr.startListening();
 
-  await events.emit("agent:heartbeat", { agentId: "jarvis" });
+  await events.emit("agent:heartbeat", { agentId: "scout" });
   await new Promise((r) => setTimeout(r, 10));
 
   const feed = await mgr.getFeed();
   assertEquals(feed.length, 1);
   assertEquals(feed[0]!.type, "agent_heartbeat");
-  assertEquals(feed[0]!.actorId, "jarvis");
+  assertEquals(feed[0]!.actorId, "scout");
 });
 
 Deno.test("startListening - records plugin:loaded event", async () => {
@@ -319,7 +319,7 @@ Deno.test("formatActivity - task_created", () => {
     id: "x",
     workspaceId: "",
     type: "task_created",
-    actorId: "Jarvis",
+    actorId: "Scout",
     actorType: "agent",
     targetType: "task",
     targetId: "#123",
@@ -327,7 +327,7 @@ Deno.test("formatActivity - task_created", () => {
     createdAt: new Date(),
   } as unknown as Activity;
 
-  assertEquals(ActivityManager.formatActivity(a), 'Jarvis created task #123: "Write report"');
+  assertEquals(ActivityManager.formatActivity(a), 'Scout created task #123: "Write report"');
 });
 
 Deno.test("formatActivity - task_assigned", () => {
@@ -339,11 +339,11 @@ Deno.test("formatActivity - task_assigned", () => {
     actorType: "system",
     targetType: "task",
     targetId: "#1",
-    data: { agentIds: ["Loki", "Jarvis"] },
+    data: { agentIds: ["Loki", "Scout"] },
     createdAt: new Date(),
   } as unknown as Activity;
 
-  assertEquals(ActivityManager.formatActivity(a), "system assigned task #1 to Loki and Jarvis");
+  assertEquals(ActivityManager.formatActivity(a), "system assigned task #1 to Loki and Scout");
 });
 
 Deno.test("formatActivity - task_status_changed", () => {
@@ -367,15 +367,15 @@ Deno.test("formatActivity - agent_started", () => {
     id: "x",
     workspaceId: "",
     type: "agent_started",
-    actorId: "Jarvis",
+    actorId: "Scout",
     actorType: "system",
     targetType: "agent",
-    targetId: "Jarvis",
+    targetId: "Scout",
     data: {},
     createdAt: new Date(),
   } as unknown as Activity;
 
-  assertEquals(ActivityManager.formatActivity(a), "Agent Jarvis started");
+  assertEquals(ActivityManager.formatActivity(a), "Agent Scout started");
 });
 
 Deno.test("formatActivity - plugin_loaded with version", () => {

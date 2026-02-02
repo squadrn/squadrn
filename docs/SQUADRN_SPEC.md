@@ -257,13 +257,13 @@ log_level = "info"
 adapter = "sqlite"
 path = "~/.squadrn/data.db"
 
-[agents.jarvis]
-name = "Jarvis"
+[agents.scout]
+name = "Scout"
 role = "Squad Lead"
 llm = "claude"  # References installed LLM plugin
 channels = ["telegram"]
 heartbeat = "*/15 * * * *"
-soul_file = "~/.squadrn/agents/jarvis/SOUL.md"
+soul_file = "~/.squadrn/agents/scout/SOUL.md"
 
 [agents.loki]
 name = "Loki"

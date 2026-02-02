@@ -17,13 +17,13 @@ log_level = "debug"
 adapter = "sqlite"
 path = "/tmp/test.db"
 
-[agents.jarvis]
-name = "Jarvis"
+[agents.scout]
+name = "Scout"
 role = "Lead"
 llm = "claude"
 channels = ["telegram"]
 heartbeat = "*/15 * * * *"
-soul_file = "~/.squadrn/agents/jarvis/SOUL.md"
+soul_file = "~/.squadrn/agents/scout/SOUL.md"
 `;
 
 async function withTempFile(
@@ -84,7 +84,7 @@ Deno.test("loadConfig - valid TOML is parsed and merged", async () => {
     assertEquals(result.value.gateway.host, "0.0.0.0");
     assertEquals(result.value.gateway.port, 9000);
     assertEquals(result.value.gateway.log_level, "debug");
-    assertEquals(result.value.agents["jarvis"]?.name, "Jarvis");
+    assertEquals(result.value.agents["scout"]?.name, "Scout");
   });
 });
 

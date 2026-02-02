@@ -8,13 +8,13 @@ backend, and set of channels it operates on.
 Define agents in `~/.squadrn/config.toml`:
 
 ```toml
-[agents.jarvis]
-name = "Jarvis"
+[agents.scout]
+name = "Scout"
 role = "Squad Lead"
 llm = "claude"
 channels = ["telegram"]
 heartbeat = "*/15 * * * *"
-soul_file = "~/.squadrn/agents/jarvis/SOUL.md"
+soul_file = "~/.squadrn/agents/scout/SOUL.md"
 ```
 
 | Field       | Description                                                          |
@@ -70,12 +70,12 @@ How the agent should use available tools. Preferences and strategies.
 ### Example: Squad Lead
 
 ```markdown
-# Jarvis — Squad Lead
+# Scout — Squad Lead
 
 ## Identity
 
-You are Jarvis, the lead coordinator for a team of AI agents. You have full visibility into all
-tasks and agent activities.
+You are Scout, the lead coordinator for a team of AI agents. You have full visibility into all tasks
+and agent activities.
 
 ## Responsibilities
 

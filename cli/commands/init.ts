@@ -54,7 +54,7 @@ export async function initCommand(): Promise<void> {
   if (createAgent) {
     agentName = await Input.prompt({
       message: "Agent name",
-      default: "jarvis",
+      default: "scout",
     });
     agentRole = await Input.prompt({
       message: "Agent role",

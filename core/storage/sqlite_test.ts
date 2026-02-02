@@ -10,9 +10,9 @@ function createStorage(): SqliteStorage {
 Deno.test("set and get a value", async () => {
   const db = createStorage();
   try {
-    await db.set("agents:a1", { name: "Jarvis" });
+    await db.set("agents:a1", { name: "Scout" });
     const val = await db.get<{ name: string }>("agents:a1");
-    assertEquals(val?.name, "Jarvis");
+    assertEquals(val?.name, "Scout");
   } finally {
     db.close();
   }
@@ -93,13 +93,13 @@ Deno.test("query with limit", async () => {
 Deno.test("query with where filter on JSON field", async () => {
   const db = createStorage();
   try {
-    await db.set("agents:a1", { name: "Jarvis", role: "lead" });
+    await db.set("agents:a1", { name: "Scout", role: "lead" });
     await db.set("agents:a2", { name: "Loki", role: "writer" });
     const results = await db.query<{ name: string }>("agents", {
       where: { role: "lead" },
     });
     assertEquals(results.length, 1);
-    assertEquals(results[0]?.name, "Jarvis");
+    assertEquals(results[0]?.name, "Scout");
   } finally {
     db.close();
   }
@@ -161,7 +161,7 @@ Deno.test("exec and queryRaw work on entity tables", () => {
       "INSERT INTO agents (id, workspace_id, name, role, llm, soul_file) VALUES (?, ?, ?, ?, ?, ?)",
       "a1",
       "ws1",
-      "Jarvis",
+      "Scout",
       "Lead",
       "claude",
       "/soul.md",
@@ -171,7 +171,7 @@ Deno.test("exec and queryRaw work on entity tables", () => {
       "a1",
     );
     assertEquals(rows.length, 1);
-    assertEquals(rows[0]?.name, "Jarvis");
+    assertEquals(rows[0]?.name, "Scout");
   } finally {
     db.close();
   }

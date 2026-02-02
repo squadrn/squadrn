@@ -571,24 +571,19 @@
       <h2 class="section-title">Three commands to running agents</h2>
       <div class="code-block">
         <div class="code-header">terminal</div>
-        <div class="code-body">
-          <span class="comment"># Install</span>
-          <span class="cmd">curl</span> <span class="flag">-fsSL</span>
-          https://squadrn.dev/install.sh | sh
+        <pre class="code-body"><span class="comment"># Install</span>
+<span class="cmd">curl</span> <span class="flag">-fsSL</span> https://squadrn.dev/install.sh | sh
 
-          <span class="comment"># Interactive setup</span>
-          <span class="cmd">squadrn</span> <span class="arg">init</span>
+<span class="comment"># Interactive setup</span>
+<span class="cmd">squadrn</span> <span class="arg">init</span>
 
-          <span class="comment"># Add plugins</span>
-          <span class="cmd">squadrn</span> <span class="arg">plugin add</span> <span class="flag"
-          >https://github.com/squadrn/channel-telegram</span>
-          <span class="cmd">squadrn</span> <span class="arg">plugin add</span> <span class="flag"
-          >https://github.com/squadrn/llm-claude</span>
+<span class="comment"># Add plugins</span>
+<span class="cmd">squadrn</span> <span class="arg">plugin add</span> <span class="flag">https://github.com/squadrn/channel-telegram</span>
+<span class="cmd">squadrn</span> <span class="arg">plugin add</span> <span class="flag">https://github.com/squadrn/llm-claude</span>
 
-          <span class="comment"># Create an agent and start</span>
-          <span class="cmd">squadrn</span> <span class="arg">agent create</span> jarvis
-          <span class="cmd">squadrn</span> <span class="arg">start</span>
-        </div>
+<span class="comment"># Create an agent and start</span>
+<span class="cmd">squadrn</span> <span class="arg">agent create</span> scout
+<span class="cmd">squadrn</span> <span class="arg">start</span></pre>
       </div>
     </section>
 

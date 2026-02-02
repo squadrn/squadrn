@@ -36,13 +36,13 @@ Deno.test("init - config with agent round-trips correctly", async () => {
   await withTempDir(async (dir) => {
     const configPath = join(dir, "config.toml");
     const config = defaultConfig();
-    config.agents["jarvis"] = {
-      name: "Jarvis",
+    config.agents["scout"] = {
+      name: "Scout",
       role: "General Assistant",
       llm: "claude",
       channels: ["telegram"],
       heartbeat: "*/15 * * * *",
-      soul_file: "~/.squadrn/agents/jarvis/SOUL.md",
+      soul_file: "~/.squadrn/agents/scout/SOUL.md",
     };
 
     await Deno.writeTextFile(configPath, serializeConfig(config));
@@ -50,8 +50,8 @@ Deno.test("init - config with agent round-trips correctly", async () => {
     const result = await loadConfig(configPath);
     assertEquals(result.ok, true);
     if (result.ok) {
-      const agent = result.value.agents["jarvis"];
-      assertEquals(agent?.name, "Jarvis");
+      const agent = result.value.agents["scout"];
+      assertEquals(agent?.name, "Scout");
       assertEquals(agent?.role, "General Assistant");
       assertEquals(agent?.llm, "claude");
       assertEquals(agent?.channels, ["telegram"]);
@@ -81,11 +81,11 @@ Deno.test("init - directory structure is created correctly", async () => {
 
 Deno.test("init - SOUL.md file can be created for an agent", async () => {
   await withTempDir(async (dir) => {
-    const agentDir = join(dir, "agents", "jarvis");
+    const agentDir = join(dir, "agents", "scout");
     await Deno.mkdir(agentDir, { recursive: true });
 
     const soulPath = join(agentDir, "SOUL.md");
-    const content = "# Jarvis\n\nYou are Jarvis, a General Assistant.\n";
+    const content = "# Scout\n\nYou are Scout, a General Assistant.\n";
     await Deno.writeTextFile(soulPath, content);
 
     const readBack = await Deno.readTextFile(soulPath);

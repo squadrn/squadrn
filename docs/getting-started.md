@@ -67,19 +67,19 @@ squadrn stop
 Create an agent interactively:
 
 ```bash
-squadrn agent create jarvis
+squadrn agent create scout
 ```
 
 Or configure it directly in `~/.squadrn/config.toml`:
 
 ```toml
-[agents.jarvis]
-name = "Jarvis"
+[agents.scout]
+name = "Scout"
 role = "Squad Lead"
 llm = "claude"
 channels = ["telegram"]
 heartbeat = "*/15 * * * *"
-soul_file = "~/.squadrn/agents/jarvis/SOUL.md"
+soul_file = "~/.squadrn/agents/scout/SOUL.md"
 ```
 
 ### The SOUL.md File
@@ -88,11 +88,11 @@ Every agent needs a `SOUL.md` file that defines its personality and behavior. Cr
 specified in the config:
 
 ```markdown
-# Jarvis — Squad Lead
+# Scout — Squad Lead
 
 ## Identity
 
-You are Jarvis, the lead coordinator for a team of AI agents.
+You are Scout, the lead coordinator for a team of AI agents.
 
 ## Responsibilities
 
@@ -157,7 +157,7 @@ After installing the Telegram channel plugin:
    squadrn stop && squadrn start
    ```
 
-6. Send a message to your bot on Telegram — Jarvis will respond!
+6. Send a message to your bot on Telegram — Scout will respond!
 
 ## Creating Tasks
 
@@ -170,7 +170,7 @@ squadrn task create
 Assign it to an agent:
 
 ```bash
-squadrn task assign <task-id> jarvis
+squadrn task assign <task-id> scout
 ```
 
 List all tasks:

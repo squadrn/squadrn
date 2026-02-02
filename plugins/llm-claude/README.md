@@ -28,8 +28,8 @@ squadrn plugin add https://github.com/squadrn/llm-claude
 In `~/.squadrn/config.toml`:
 
 ```toml
-[agents.jarvis]
-name = "Jarvis"
+[agents.scout]
+name = "Scout"
 role = "Squad Lead"
 llm = "claude"
 channels = ["telegram"]
