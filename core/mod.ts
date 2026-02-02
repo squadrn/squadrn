@@ -36,3 +36,9 @@ export { Scheduler, CronParseError, JobNotFoundError, parseCron, nextCronDate } 
 export type { ScheduledJob } from "./scheduler.ts";
 export { TaskManager, TaskNotFoundError, InvalidTransitionError } from "./task_manager.ts";
 export type { CreateTaskData, TaskFilter, AddCommentData } from "./task_manager.ts";
+export {
+  NotificationManager,
+  NotificationNotFoundError,
+  parseMentions as parseNotificationMentions,
+} from "./notification_manager.ts";
+export type { CreateNotificationData } from "./notification_manager.ts";

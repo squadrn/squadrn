@@ -19,12 +19,14 @@ export type {
   CommentId,
   SessionId,
   WorkspaceId,
+  NotificationId,
   Agent,
   Comment,
   Message,
   SessionContext,
   Session,
   Task,
+  Notification,
   Result,
   SerializedAgent,
 } from "./models.ts";
@@ -34,6 +36,7 @@ export {
   createTaskId,
   createCommentId,
   createSessionId,
+  createNotificationId,
   serializeAgent,
   deserializeAgent,
 } from "./models.ts";

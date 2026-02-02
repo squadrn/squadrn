@@ -4,6 +4,7 @@ export type TaskId = string & { readonly __brand: "TaskId" };
 export type CommentId = string & { readonly __brand: "CommentId" };
 export type SessionId = string & { readonly __brand: "SessionId" };
 export type WorkspaceId = string & { readonly __brand: "WorkspaceId" };
+export type NotificationId = string & { readonly __brand: "NotificationId" };
 
 export interface Agent {
   id: AgentId;
@@ -71,6 +72,21 @@ export interface Task {
   completedAt?: Date;
 }
 
+export interface Notification {
+  id: NotificationId;
+  workspaceId: WorkspaceId;
+  recipientId: string;
+  type: "mention" | "assignment" | "comment" | "system";
+  content: string;
+  sourceType: "task" | "message" | "system";
+  sourceId?: string;
+  delivered: boolean;
+  deliveredAt?: Date;
+  read: boolean;
+  readAt?: Date;
+  createdAt: Date;
+}
+
 export type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: E };
 
 // ── Helper functions ─────────────────────────────────────────────────────────
@@ -89,6 +105,10 @@ export function createCommentId(): CommentId {
 
 export function createSessionId(): SessionId {
   return crypto.randomUUID() as SessionId;
+}
+
+export function createNotificationId(): NotificationId {
+  return crypto.randomUUID() as NotificationId;
 }
 
 export interface SerializedAgent {
