@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 import { join } from "jsr:@std/path";
 import { defaultConfig, Gateway, GatewayClient, serializeConfig } from "@squadrn/core";
 

@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 import { ActivityManager } from "./activity_manager.ts";
 import { EventBus } from "./event_bus.ts";
 import type { Activity, QueryFilter, StorageAdapter, Transaction } from "@squadrn/types";

@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "jsr:@std/assert";
+import { assertEquals, assertRejects } from "@std/assert";
 import { InvalidTransitionError, TaskManager, TaskNotFoundError } from "./task_manager.ts";
 import { EventBus } from "./event_bus.ts";
 import type { AgentId, QueryFilter, StorageAdapter, TaskId, Transaction } from "@squadrn/types";

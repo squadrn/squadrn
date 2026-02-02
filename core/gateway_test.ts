@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "jsr:@std/assert";
+import { assertEquals, assertRejects } from "@std/assert";
 import { join } from "jsr:@std/path";
 import { Gateway } from "./gateway.ts";
 import { GatewayClient } from "./gateway_client.ts";

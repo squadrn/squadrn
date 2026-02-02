@@ -1,4 +1,4 @@
-import { assertEquals, assertGreater } from "jsr:@std/assert";
+import { assertEquals, assertGreater } from "@std/assert";
 import type {
   Agent,
   AgentId,
