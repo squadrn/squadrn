@@ -1,5 +1,7 @@
 <div align="center">
 
+<img width="128" height="128" alt="logo trans" src="https://github.com/user-attachments/assets/bc28f9ea-fe31-46e7-9c75-b83c9c8f2e1f" />
+
 # Squadrn
 
 ### Kubernetes for AI agents.
