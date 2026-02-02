@@ -7,7 +7,7 @@
 **Orchestrate persistent AI agent teams with a plugin-first architecture.** **Squadrn doesn't run
 agents or wrap LLMs — it coordinates them.**
 
-[Get Started](#getting-started) · [Docs](docs/SQUADRN_SPEC.md) · [Plugins](#plugin-system)
+[Get Started](docs/getting-started.md) · [Architecture](docs/architecture.md) · [Docs](docs/) · [Plugins](docs/plugin-development.md)
 
 ---
 
@@ -47,7 +47,7 @@ squadrn init
 squadrn start
 ```
 
-That's it. Add agents, connect channels, assign tasks.
+That's it. Add agents, connect channels, assign tasks. See the full [Getting Started guide](docs/getting-started.md).
 
 ## Architecture
 
@@ -68,6 +68,8 @@ Storage Adapter · Config Manager
 **Message flow:** Channel receives message → Gateway routes to agent → Agent thinks via LLM →
 Gateway delivers response through channel.
 
+See [Architecture](docs/architecture.md) for the full component diagram and message flow.
+
 ## CLI
 
 ```bash
@@ -83,6 +85,8 @@ squadrn plugin list                 # List installed plugins
 squadrn task create                 # Create a task
 squadrn task assign <id> <agent>    # Assign to an agent
 ```
+
+Full command reference in the [API Reference](docs/api-reference.md).
 
 ## Plugin System
 
@@ -100,6 +104,8 @@ Everything beyond the core is a plugin. Six types:
 Each plugin declares its Deno permissions upfront and gets a sandboxed API with namespaced storage,
 event bus access, and structured logging. No plugin can touch another plugin's data.
 
+See [Plugin Development](docs/plugin-development.md) for a guide on building your own plugins.
+
 ## Tech Stack
 
 **Deno 2.x** · **Strict TypeScript** · **SQLite** (swappable) · **TOML config** · **Unix sockets +
@@ -112,8 +118,18 @@ squadrn/
 ├── types/   @squadrn/types   — Branded IDs, shared interfaces (the plugin contract)
 ├── core/    @squadrn/core    — Gateway daemon engine
 ├── cli/     @squadrn/cli     — CLI entry point and commands
-└── docs/                     — Full specification
+└── docs/                     — Documentation
 ```
+
+## Documentation
+
+- [Getting Started](docs/getting-started.md) — installation, first agent, first message
+- [Architecture](docs/architecture.md) — components, message flow, event system
+- [Configuration](docs/configuration.md) — full `config.toml` reference
+- [Plugin Development](docs/plugin-development.md) — build channel, LLM, and tool plugins
+- [Agents](docs/agents.md) — SOUL.md, heartbeats, multi-agent collaboration
+- [API Reference](docs/api-reference.md) — CLI commands, events, data models, error codes
+- [Specification](docs/SQUADRN_SPEC.md) — full technical specification
 
 ## Development
 
