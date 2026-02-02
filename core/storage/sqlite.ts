@@ -129,28 +129,29 @@ export class SqliteStorage implements StorageAdapter {
     }
   }
 
-  async get<T>(key: string): Promise<T | null> {
+  get<T>(key: string): Promise<T | null> {
     const row = this.#db.prepare("SELECT value FROM kv WHERE key = ?").get(key) as
       | { value: string }
       | undefined;
-    if (!row) return null;
-    return JSON.parse(row.value) as T;
+    if (!row) return Promise.resolve(null);
+    return Promise.resolve(JSON.parse(row.value) as T);
   }
 
-  async set<T>(key: string, value: T): Promise<void> {
+  set<T>(key: string, value: T): Promise<void> {
     const collection = key.split(":")[0] ?? null;
     this.#db.prepare(
       `INSERT INTO kv (key, value, collection, updated_at) VALUES (?, ?, ?, datetime('now'))
        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
     ).run(key, JSON.stringify(value), collection);
+    return Promise.resolve();
   }
 
-  async delete(key: string): Promise<boolean> {
+  delete(key: string): Promise<boolean> {
     const changes = this.#db.prepare("DELETE FROM kv WHERE key = ?").run(key);
-    return changes > 0;
+    return Promise.resolve(changes > 0);
   }
 
-  async query<T>(collection: string, filter: QueryFilter): Promise<T[]> {
+  query<T>(collection: string, filter: QueryFilter): Promise<T[]> {
     let sql = "SELECT value FROM kv WHERE collection = ?";
     const params: unknown[] = [collection];
 
@@ -177,7 +178,7 @@ export class SqliteStorage implements StorageAdapter {
     const rows = this.#db.prepare(sql).all(
       ...params as (string | number | null | bigint | boolean | Uint8Array)[],
     ) as { value: string }[];
-    return rows.map((r) => JSON.parse(r.value) as T);
+    return Promise.resolve(rows.map((r) => JSON.parse(r.value) as T));
   }
 
   async transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {

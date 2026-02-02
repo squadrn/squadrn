@@ -226,11 +226,11 @@ export class ActivityManager {
     return results;
   }
 
-  async getForTask(taskId: string): Promise<Activity[]> {
+  getForTask(taskId: string): Promise<Activity[]> {
     return this.getFeed({ targetType: "task", targetId: taskId });
   }
 
-  async getForAgent(agentId: string): Promise<Activity[]> {
+  getForAgent(agentId: string): Promise<Activity[]> {
     return this.getFeed({ actorId: agentId });
   }
 

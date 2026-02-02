@@ -34,17 +34,17 @@ export class GatewayClient {
   }
 
   /** Request gateway status. */
-  async status(): Promise<GatewayResponse> {
+  status(): Promise<GatewayResponse> {
     return this.send({ action: "status" });
   }
 
   /** Request gateway to stop. */
-  async stop(): Promise<GatewayResponse> {
+  stop(): Promise<GatewayResponse> {
     return this.send({ action: "stop" });
   }
 
   /** Request gateway to reload configuration. */
-  async reload(): Promise<GatewayResponse> {
+  reload(): Promise<GatewayResponse> {
     return this.send({ action: "reload" });
   }
 }

@@ -35,7 +35,7 @@ function makeMockPlugin(
 ): Plugin {
   return {
     manifest,
-    register: registerFn ?? (async () => {}),
+    register: registerFn ?? (() => Promise.resolve()),
     unregister: unregisterFn,
   };
 }
@@ -74,14 +74,15 @@ Deno.test("PluginLoader - loadOne registers a channel plugin", async () => {
 
   const mockChannel: ChannelProvider = {
     name: "test-channel",
-    connect: async () => {},
-    disconnect: async () => {},
+    connect: () => Promise.resolve(),
+    disconnect: () => Promise.resolve(),
     onMessage: (_handler: (msg: IncomingMessage) => void) => {},
-    sendMessage: async (_msg: OutgoingMessage) => {},
+    sendMessage: (_msg: OutgoingMessage) => Promise.resolve(),
   };
 
-  const plugin = makeMockPlugin(manifest, async (api) => {
+  const plugin = makeMockPlugin(manifest, (api) => {
     api.registerChannel!(mockChannel);
+    return Promise.resolve();
   });
 
   const entry: InstalledPlugin = {
@@ -103,15 +104,16 @@ Deno.test("PluginLoader - loadOne registers an LLM plugin", async () => {
   const mockLLM: LLMProvider = {
     name: "test-llm",
     supportsTools: false,
-    complete: async () => ({
+    complete: () => Promise.resolve({
       content: "hello",
       usage: { inputTokens: 1, outputTokens: 1 },
       stopReason: "end" as const,
     }),
   };
 
-  const plugin = makeMockPlugin(manifest, async (api) => {
+  const plugin = makeMockPlugin(manifest, (api) => {
     api.registerLLM!(mockLLM);
+    return Promise.resolve();
   });
 
   const entry: InstalledPlugin = {
@@ -131,8 +133,9 @@ Deno.test("PluginLoader - plugin receives namespaced storage", async () => {
   const manifest = makeManifest({ name: "@test/storage-test" });
 
   let storedApi: PluginAPI | null = null;
-  const plugin = makeMockPlugin(manifest, async (api) => {
+  const plugin = makeMockPlugin(manifest, (api) => {
     storedApi = api;
+    return Promise.resolve();
   });
 
   const entry: InstalledPlugin = {
@@ -169,8 +172,9 @@ Deno.test("PluginLoader - plugin receives its config section", async () => {
   const manifest = makeManifest({ name: "@test/config-test" });
 
   let receivedConfig: Record<string, unknown> = {};
-  const plugin = makeMockPlugin(manifest, async (api) => {
+  const plugin = makeMockPlugin(manifest, (api) => {
     receivedConfig = api.config;
+    return Promise.resolve();
   });
 
   const entry: InstalledPlugin = {
@@ -189,10 +193,11 @@ Deno.test("PluginLoader - plugin can subscribe to events", async () => {
   const manifest = makeManifest({ name: "@test/events-test" });
 
   const received: unknown[] = [];
-  const plugin = makeMockPlugin(manifest, async (api) => {
+  const plugin = makeMockPlugin(manifest, (api) => {
     api.events.on("message:received", (payload) => {
       received.push(payload);
     });
+    return Promise.resolve();
   });
 
   const entry: InstalledPlugin = {
@@ -273,9 +278,10 @@ Deno.test("PluginLoader - uninstall removes plugin", async () => {
   let unregistered = false;
   const plugin = makeMockPlugin(
     manifest,
-    async () => {},
-    async () => {
+    () => Promise.resolve(),
+    () => {
       unregistered = true;
+      return Promise.resolve();
     },
   );
 
@@ -314,9 +320,10 @@ Deno.test("PluginLoader - channel plugin type does NOT get registerLLM hook", as
 
   let hasRegisterLLM = false;
   let hasRegisterChannel = false;
-  const plugin = makeMockPlugin(manifest, async (api) => {
+  const plugin = makeMockPlugin(manifest, (api) => {
     hasRegisterLLM = typeof api.registerLLM === "function";
     hasRegisterChannel = typeof api.registerChannel === "function";
+    return Promise.resolve();
   });
 
   const entry: InstalledPlugin = {

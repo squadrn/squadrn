@@ -53,8 +53,7 @@ function mapStopReasonWithTools(
 const plugin: Plugin = {
   manifest,
 
-  // deno-lint-ignore require-await
-  async register(core: PluginAPI) {
+  register(core: PluginAPI): Promise<void> {
     const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
     if (!apiKey) {
       throw new Error(
@@ -148,6 +147,7 @@ const plugin: Plugin = {
 
     core.registerLLM!(llm);
     core.log.info("Claude LLM registered", { model: defaultModel });
+    return Promise.resolve();
   },
 
   unregister(): Promise<void> {

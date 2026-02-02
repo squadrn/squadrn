@@ -22,16 +22,17 @@ import { AgentRunner, parseMentions, parseWorkingMemoryUpdates } from "./agent_r
 function createMemoryStorage(): StorageAdapter {
   const store = new Map<string, unknown>();
   return {
-    async get<T>(key: string): Promise<T | null> {
-      return (store.get(key) as T) ?? null;
+    get<T>(key: string): Promise<T | null> {
+      return Promise.resolve((store.get(key) as T) ?? null);
     },
-    async set<T>(key: string, value: T): Promise<void> {
+    set<T>(key: string, value: T): Promise<void> {
       store.set(key, value);
+      return Promise.resolve();
     },
-    async delete(key: string): Promise<boolean> {
-      return store.delete(key);
+    delete(key: string): Promise<boolean> {
+      return Promise.resolve(store.delete(key));
     },
-    async query<T>(collection: string, filter: QueryFilter): Promise<T[]> {
+    query<T>(collection: string, filter: QueryFilter): Promise<T[]> {
       const results: T[] = [];
       for (const [key, value] of store) {
         if (!key.startsWith(`${collection}:`)) continue;
@@ -47,15 +48,16 @@ function createMemoryStorage(): StorageAdapter {
         }
         if (match) results.push(value as T);
       }
-      return results;
+      return Promise.resolve(results);
     },
-    async transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {
+    transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {
       const tx: Transaction = {
-        get: async <U>(key: string) => (store.get(key) as U) ?? null,
-        set: async <U>(key: string, value: U) => {
+        get: <U>(key: string) => Promise.resolve((store.get(key) as U) ?? null),
+        set: <U>(key: string, value: U) => {
           store.set(key, value);
+          return Promise.resolve();
         },
-        delete: async (key: string) => store.delete(key),
+        delete: (key: string) => Promise.resolve(store.delete(key)),
       };
       return fn(tx);
     },
@@ -68,14 +70,14 @@ function createMockLLM(responses: string[]): LLMProvider {
   return {
     name: "mock",
     supportsTools: false,
-    async complete(_req: CompletionRequest): Promise<CompletionResponse> {
+    complete(_req: CompletionRequest): Promise<CompletionResponse> {
       const content = responses[callIndex] ?? "no response";
       callIndex++;
-      return {
+      return Promise.resolve({
         content,
         usage: { inputTokens: 10, outputTokens: 5 },
         stopReason: "end",
-      };
+      });
     },
   };
 }
@@ -91,27 +93,27 @@ function createMockLLMWithTools(
   return {
     name: "mock-tools",
     supportsTools: true,
-    async complete(req: CompletionRequest): Promise<CompletionResponse> {
+    complete(_req: CompletionRequest): Promise<CompletionResponse> {
       const step = steps[callIndex] ?? { content: "final", stopReason: "end" };
       callIndex++;
-      return {
+      return Promise.resolve({
         content: step.content,
         usage: { inputTokens: 10, outputTokens: 5 },
         stopReason: "end",
-      };
+      });
     },
-    async completeWithTools(
+    completeWithTools(
       _req: CompletionRequest,
       _tools: ToolDefinition[],
     ): Promise<CompletionWithToolsResponse> {
       const step = steps[callIndex] ?? { content: "final", toolCalls: [], stopReason: "end" };
       callIndex++;
-      return {
+      return Promise.resolve({
         content: step.content,
         usage: { inputTokens: 10, outputTokens: 5 },
         stopReason: step.stopReason ?? "end",
         toolCalls: step.toolCalls ?? [],
-      };
+      });
     },
   };
 }
@@ -221,9 +223,9 @@ Deno.test("run() includes conversation history in LLM request", async () => {
   const llm: LLMProvider = {
     name: "spy",
     supportsTools: false,
-    async complete(req: CompletionRequest): Promise<CompletionResponse> {
+    complete(req: CompletionRequest): Promise<CompletionResponse> {
       capturedMessages = req.messages;
-      return { content: "ok", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" };
+      return Promise.resolve({ content: "ok", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" });
     },
   };
 
@@ -241,7 +243,7 @@ Deno.test("run() includes conversation history in LLM request", async () => {
 });
 
 Deno.test("run() with tool calling executes search_memory", async () => {
-  const { runner, session, sessionManager, events } = await setupRunner(
+  const { runner, session, sessionManager, events: _events } = await setupRunner(
     createMockLLMWithTools([
       {
         content: "",
@@ -263,17 +265,17 @@ Deno.test("run() respects maxIterations for tool loops", async () => {
   const infiniteToolLLM: LLMProvider = {
     name: "infinite",
     supportsTools: true,
-    async complete(): Promise<CompletionResponse> {
-      return { content: "stopped", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" };
+    complete(): Promise<CompletionResponse> {
+      return Promise.resolve({ content: "stopped", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" });
     },
-    async completeWithTools(): Promise<CompletionWithToolsResponse> {
+    completeWithTools(): Promise<CompletionWithToolsResponse> {
       callCount++;
-      return {
+      return Promise.resolve({
         content: "",
         usage: { inputTokens: 1, outputTokens: 1 },
         stopReason: "tool_use",
         toolCalls: [{ id: `c${callCount}`, name: "search_memory", arguments: { key: "x" } }],
-      };
+      });
     },
   };
 
@@ -287,29 +289,29 @@ Deno.test("run() respects maxIterations for tool loops", async () => {
 
 Deno.test("stop() aborts tool loop between iterations", async () => {
   let callCount = 0;
-  let stopFn: (() => void) | undefined;
+  const stopRef: { fn: (() => void) | undefined } = { fn: undefined };
 
   const toolLLM: LLMProvider = {
     name: "stoppable",
     supportsTools: true,
-    async complete(): Promise<CompletionResponse> {
-      return { content: "final", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" };
+    complete(): Promise<CompletionResponse> {
+      return Promise.resolve({ content: "final", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" });
     },
-    async completeWithTools(): Promise<CompletionWithToolsResponse> {
+    completeWithTools(): Promise<CompletionWithToolsResponse> {
       callCount++;
       // After first iteration, call stop
-      if (callCount === 2 && stopFn) stopFn();
-      return {
+      if (callCount === 2 && stopRef.fn) stopRef.fn();
+      return Promise.resolve({
         content: "",
         usage: { inputTokens: 1, outputTokens: 1 },
         stopReason: "tool_use",
         toolCalls: [{ id: `c${callCount}`, name: "search_memory", arguments: { key: "x" } }],
-      };
+      });
     },
   };
 
   const { runner } = await setupRunner(toolLLM, { maxIterations: 10 });
-  stopFn = () => runner.stop();
+  stopRef.fn = () => runner.stop();
 
   const result = await runner.run("test");
   // Should have stopped after 2-3 iterations, not 10
@@ -357,13 +359,13 @@ Deno.test("run() detects @mentions in response", async () => {
 });
 
 Deno.test("rate limiting delays between calls", async () => {
-  let callTimes: number[] = [];
+  const callTimes: number[] = [];
   const timedLLM: LLMProvider = {
     name: "timed",
     supportsTools: false,
-    async complete(): Promise<CompletionResponse> {
+    complete(): Promise<CompletionResponse> {
       callTimes.push(Date.now());
-      return { content: "ok", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" };
+      return Promise.resolve({ content: "ok", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" });
     },
   };
 

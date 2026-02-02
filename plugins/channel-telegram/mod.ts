@@ -24,8 +24,7 @@ import { handleStartCommand, telegramUpdateToIncoming } from "./src/handlers.ts"
 const plugin: Plugin = {
   manifest,
 
-  // deno-lint-ignore require-await
-  async register(core: PluginAPI) {
+  register(core: PluginAPI): Promise<void> {
     const token = Deno.env.get("TELEGRAM_BOT_TOKEN");
     if (!token) {
       throw new Error(
@@ -79,6 +78,7 @@ const plugin: Plugin = {
 
     core.registerChannel!(channel);
     core.log.info("Telegram channel registered");
+    return Promise.resolve();
   },
 
   unregister(): Promise<void> {

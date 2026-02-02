@@ -1,5 +1,5 @@
 import { assertEquals, assertGreater } from "jsr:@std/assert";
-import type { EventName } from "@squadrn/types";
+
 import { EventBus } from "./event_bus.ts";
 
 Deno.test("emits event to a single subscriber", async () => {

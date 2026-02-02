@@ -17,29 +17,31 @@ import type { QueryFilter, StorageAdapter, Transaction } from "@squadrn/types";
 function makeStorage(): StorageAdapter {
   const store = new Map<string, unknown>();
   return {
-    async get<T>(key: string): Promise<T | null> {
-      return (store.get(key) as T) ?? null;
+    get<T>(key: string): Promise<T | null> {
+      return Promise.resolve((store.get(key) as T) ?? null);
     },
-    async set<T>(key: string, value: T): Promise<void> {
+    set<T>(key: string, value: T): Promise<void> {
       store.set(key, value);
+      return Promise.resolve();
     },
-    async delete(key: string): Promise<boolean> {
-      return store.delete(key);
+    delete(key: string): Promise<boolean> {
+      return Promise.resolve(store.delete(key));
     },
-    async query<T>(collection: string, _filter: QueryFilter): Promise<T[]> {
+    query<T>(collection: string, _filter: QueryFilter): Promise<T[]> {
       const results: T[] = [];
       for (const [k, v] of store) {
         if (k.startsWith(`${collection}:`)) results.push(v as T);
       }
-      return results;
+      return Promise.resolve(results);
     },
-    async transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {
+    transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {
       const tx: Transaction = {
-        get: async <U>(key: string) => (store.get(key) as U) ?? null,
-        set: async <U>(key: string, value: U) => {
+        get: <U>(key: string) => Promise.resolve((store.get(key) as U) ?? null),
+        set: <U>(key: string, value: U) => {
           store.set(key, value);
+          return Promise.resolve();
         },
-        delete: async (key: string) => store.delete(key),
+        delete: (key: string) => Promise.resolve(store.delete(key)),
       };
       return fn(tx);
     },
@@ -132,7 +134,7 @@ Deno.test("Scheduler - removeJob", async () => {
   assertEquals(scheduler.listJobs().length, 0);
 });
 
-Deno.test("Scheduler - getJob returns undefined for missing", async () => {
+Deno.test("Scheduler - getJob returns undefined for missing", () => {
   const scheduler = new Scheduler(makeStorage(), new EventBus());
   assertEquals(scheduler.getJob("nope"), undefined);
 });
