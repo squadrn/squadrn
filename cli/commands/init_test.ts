@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { join } from "jsr:@std/path";
+import { join } from "@std/path";
 import { defaultConfig, loadConfig, serializeConfig } from "@squadrn/core";
 
 async function withTempDir(fn: (dir: string) => Promise<void>): Promise<void> {
@@ -11,23 +11,26 @@ async function withTempDir(fn: (dir: string) => Promise<void>): Promise<void> {
   }
 }
 
-Deno.test("init - defaultConfig produces valid TOML that round-trips", async () => {
-  await withTempDir(async (dir) => {
-    const configPath = join(dir, "config.toml");
-    const config = defaultConfig();
-    const toml = serializeConfig(config);
+Deno.test(
+  "init - defaultConfig produces valid TOML that round-trips",
+  async () => {
+    await withTempDir(async (dir) => {
+      const configPath = join(dir, "config.toml");
+      const config = defaultConfig();
+      const toml = serializeConfig(config);
 
-    await Deno.writeTextFile(configPath, toml);
+      await Deno.writeTextFile(configPath, toml);
 
-    const result = await loadConfig(configPath);
-    assertEquals(result.ok, true);
-    if (result.ok) {
-      assertEquals(result.value.gateway.host, "127.0.0.1");
-      assertEquals(result.value.gateway.port, 18900);
-      assertEquals(result.value.storage.adapter, "sqlite");
-    }
-  });
-});
+      const result = await loadConfig(configPath);
+      assertEquals(result.ok, true);
+      if (result.ok) {
+        assertEquals(result.value.gateway.host, "127.0.0.1");
+        assertEquals(result.value.gateway.port, 18900);
+        assertEquals(result.value.storage.adapter, "sqlite");
+      }
+    });
+  },
+);
 
 Deno.test("init - config with agent round-trips correctly", async () => {
   await withTempDir(async (dir) => {

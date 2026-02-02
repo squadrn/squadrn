@@ -1,7 +1,7 @@
 import type { AgentId, Message, Session, SessionId, StorageAdapter } from "@squadrn/types";
 import { createSessionId } from "@squadrn/types";
 import type { EventBus } from "./event_bus.ts";
-import * as path from "jsr:@std/path";
+import * as path from "@std/path";
 
 function expandHome(p: string): string {
   return p.startsWith("~") ? p.replace(/^~/, Deno.env.get("HOME") ?? "") : p;
@@ -70,7 +70,11 @@ export class SessionManager {
   ): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) {
-      throw new SessionError(sessionId, "SESSION_NOT_FOUND", `Session not found: ${sessionId}`);
+      throw new SessionError(
+        sessionId,
+        "SESSION_NOT_FOUND",
+        `Session not found: ${sessionId}`,
+      );
     }
 
     const updated: Session = {
@@ -85,12 +89,23 @@ export class SessionManager {
   async endSession(sessionId: SessionId): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) {
-      throw new SessionError(sessionId, "SESSION_NOT_FOUND", `Session not found: ${sessionId}`);
+      throw new SessionError(
+        sessionId,
+        "SESSION_NOT_FOUND",
+        `Session not found: ${sessionId}`,
+      );
     }
 
-    const ended: Session = { ...session, status: "idle", lastActiveAt: new Date() };
+    const ended: Session = {
+      ...session,
+      status: "idle",
+      lastActiveAt: new Date(),
+    };
     await this.#persist(ended);
-    await this.#events.emit("session:ended", { sessionId, agentId: session.agentId });
+    await this.#events.emit("session:ended", {
+      sessionId,
+      agentId: session.agentId,
+    });
   }
 
   async listSessions(filter?: SessionFilter): Promise<Session[]> {
@@ -105,7 +120,11 @@ export class SessionManager {
   async addMessage(sessionId: SessionId, message: Message): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) {
-      throw new SessionError(sessionId, "SESSION_NOT_FOUND", `Session not found: ${sessionId}`);
+      throw new SessionError(
+        sessionId,
+        "SESSION_NOT_FOUND",
+        `Session not found: ${sessionId}`,
+      );
     }
 
     session.context.conversationHistory.push(message);
@@ -117,7 +136,11 @@ export class SessionManager {
   async getHistory(sessionId: SessionId, limit?: number): Promise<Message[]> {
     const session = await this.getSession(sessionId);
     if (!session) {
-      throw new SessionError(sessionId, "SESSION_NOT_FOUND", `Session not found: ${sessionId}`);
+      throw new SessionError(
+        sessionId,
+        "SESSION_NOT_FOUND",
+        `Session not found: ${sessionId}`,
+      );
     }
 
     const history = session.context.conversationHistory;
@@ -131,7 +154,11 @@ export class SessionManager {
   ): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) {
-      throw new SessionError(sessionId, "SESSION_NOT_FOUND", `Session not found: ${sessionId}`);
+      throw new SessionError(
+        sessionId,
+        "SESSION_NOT_FOUND",
+        `Session not found: ${sessionId}`,
+      );
     }
 
     session.context.workingMemory[key] = value;

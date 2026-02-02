@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { join } from "jsr:@std/path";
+import { join } from "@std/path";
 import { defaultConfig, Gateway, GatewayClient, serializeConfig } from "@squadrn/core";
 
 const SANITIZE = { sanitizeOps: false, sanitizeResources: false };
@@ -36,7 +36,14 @@ Deno.test({
       // Spawn daemon directly (simulating what startCommand does)
       const daemonPath = new URL("../daemon.ts", import.meta.url).pathname;
       const cmd = new Deno.Command("deno", {
-        args: ["run", "--allow-all", daemonPath, configPath, socketPath, pidPath],
+        args: [
+          "run",
+          "--allow-all",
+          daemonPath,
+          configPath,
+          socketPath,
+          pidPath,
+        ],
         stdin: "null",
         stdout: "null",
         stderr: "null",
@@ -80,7 +87,9 @@ Deno.test({
       if (alive) {
         try {
           Deno.kill(pid, "SIGKILL");
-        } catch { /* */ }
+        } catch {
+          /* */
+        }
       }
     });
   },
@@ -105,7 +114,9 @@ Deno.test({
       try {
         Deno.kill(pid, "SIGCONT");
         processAlive = true;
-      } catch { /* */ }
+      } catch {
+        /* */
+      }
 
       assertEquals(processAlive, true);
 
@@ -120,21 +131,26 @@ Deno.test({
   },
 });
 
-Deno.test("start - stale PID file is detected when process is dead", async () => {
-  await withTempDir(async (dir) => {
-    const pidPath = join(dir, "gateway.pid");
-    // Write a PID that definitely doesn't exist
-    await Deno.writeTextFile(pidPath, "999999999");
+Deno.test(
+  "start - stale PID file is detected when process is dead",
+  async () => {
+    await withTempDir(async (dir) => {
+      const pidPath = join(dir, "gateway.pid");
+      // Write a PID that definitely doesn't exist
+      await Deno.writeTextFile(pidPath, "999999999");
 
-    let processAlive = false;
-    try {
-      Deno.kill(999999999, "SIGCONT");
-      processAlive = true;
-    } catch { /* */ }
+      let processAlive = false;
+      try {
+        Deno.kill(999999999, "SIGCONT");
+        processAlive = true;
+      } catch {
+        /* */
+      }
 
-    assertEquals(processAlive, false);
+      assertEquals(processAlive, false);
 
-    // Clean up
-    await Deno.remove(pidPath).catch(() => {});
-  });
-});
+      // Clean up
+      await Deno.remove(pidPath).catch(() => {});
+    });
+  },
+);

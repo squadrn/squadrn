@@ -1,6 +1,7 @@
 # Getting Started
 
-This guide walks you through installing Squadrn, configuring your first agent, connecting a channel, and sending your first message.
+This guide walks you through installing Squadrn, configuring your first agent, connecting a channel,
+and sending your first message.
 
 ## Installation
 
@@ -8,7 +9,8 @@ This guide walks you through installing Squadrn, configuring your first agent, c
 curl -fsSL https://squadrn.dev/install.sh | sh
 ```
 
-This installs the `squadrn` CLI binary. Squadrn requires [Deno 2.x](https://deno.com) as its runtime.
+This installs the `squadrn` CLI binary. Squadrn requires [Deno 2.x](https://deno.com) as its
+runtime.
 
 Verify the installation:
 
@@ -37,7 +39,8 @@ adapter = "sqlite"
 path = "~/.squadrn/data.db"
 ```
 
-The wizard also creates the data directory at `~/.squadrn/` where all Squadrn state lives — config, database, agent files, and plugin registry.
+The wizard also creates the data directory at `~/.squadrn/` where all Squadrn state lives — config,
+database, agent files, and plugin registry.
 
 ## Starting the Gateway
 
@@ -81,20 +84,24 @@ soul_file = "~/.squadrn/agents/jarvis/SOUL.md"
 
 ### The SOUL.md File
 
-Every agent needs a `SOUL.md` file that defines its personality and behavior. Create one at the path specified in the config:
+Every agent needs a `SOUL.md` file that defines its personality and behavior. Create one at the path
+specified in the config:
 
 ```markdown
 # Jarvis — Squad Lead
 
 ## Identity
+
 You are Jarvis, the lead coordinator for a team of AI agents.
 
 ## Responsibilities
+
 - Triage incoming tasks and assign them to the right agent
 - Answer direct questions from users
 - Monitor task progress and follow up on blocked items
 
 ## Communication Style
+
 - Professional but approachable
 - Concise responses unless detail is requested
 - Always acknowledge tasks before starting work
@@ -102,7 +109,8 @@ You are Jarvis, the lead coordinator for a team of AI agents.
 
 ## Installing Plugins
 
-Squadrn doesn't include any LLMs or channels out of the box — they're all plugins. Install the ones you need:
+Squadrn doesn't include any LLMs or channels out of the box — they're all plugins. Install the ones
+you need:
 
 ### Add an LLM plugin
 

@@ -1,5 +1,5 @@
 import { assertEquals, assertStringIncludes } from "@std/assert";
-import { join } from "jsr:@std/path";
+import { join } from "@std/path";
 import { defaultConfig, Gateway, GatewayClient, serializeConfig } from "@squadrn/core";
 import type { GatewayStatus } from "@squadrn/core";
 

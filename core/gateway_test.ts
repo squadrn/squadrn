@@ -1,5 +1,5 @@
 import { assertEquals, assertRejects } from "@std/assert";
-import { join } from "jsr:@std/path";
+import { join } from "@std/path";
 import { Gateway } from "./gateway.ts";
 import { GatewayClient } from "./gateway_client.ts";
 import { defaultConfig, serializeConfig } from "./config_manager.ts";
@@ -220,12 +220,15 @@ Deno.test({
   },
 });
 
-Deno.test("GatewayClient - connection to non-existent socket returns error", async () => {
-  const client = new GatewayClient("/tmp/nonexistent-squadrn-test.sock");
-  const resp = await client.status();
-  assertEquals(resp.ok, false);
-  assertEquals(typeof resp.error, "string");
-});
+Deno.test(
+  "GatewayClient - connection to non-existent socket returns error",
+  async () => {
+    const client = new GatewayClient("/tmp/nonexistent-squadrn-test.sock");
+    const resp = await client.status();
+    assertEquals(resp.ok, false);
+    assertEquals(typeof resp.error, "string");
+  },
+);
 
 Deno.test({
   name: "Gateway - socket cleans up on stop",

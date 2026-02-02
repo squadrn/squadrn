@@ -225,7 +225,11 @@ Deno.test("run() includes conversation history in LLM request", async () => {
     supportsTools: false,
     complete(req: CompletionRequest): Promise<CompletionResponse> {
       capturedMessages = req.messages;
-      return Promise.resolve({ content: "ok", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" });
+      return Promise.resolve({
+        content: "ok",
+        usage: { inputTokens: 1, outputTokens: 1 },
+        stopReason: "end",
+      });
     },
   };
 
@@ -266,7 +270,11 @@ Deno.test("run() respects maxIterations for tool loops", async () => {
     name: "infinite",
     supportsTools: true,
     complete(): Promise<CompletionResponse> {
-      return Promise.resolve({ content: "stopped", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" });
+      return Promise.resolve({
+        content: "stopped",
+        usage: { inputTokens: 1, outputTokens: 1 },
+        stopReason: "end",
+      });
     },
     completeWithTools(): Promise<CompletionWithToolsResponse> {
       callCount++;
@@ -295,7 +303,11 @@ Deno.test("stop() aborts tool loop between iterations", async () => {
     name: "stoppable",
     supportsTools: true,
     complete(): Promise<CompletionResponse> {
-      return Promise.resolve({ content: "final", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" });
+      return Promise.resolve({
+        content: "final",
+        usage: { inputTokens: 1, outputTokens: 1 },
+        stopReason: "end",
+      });
     },
     completeWithTools(): Promise<CompletionWithToolsResponse> {
       callCount++;
@@ -365,7 +377,11 @@ Deno.test("rate limiting delays between calls", async () => {
     supportsTools: false,
     complete(): Promise<CompletionResponse> {
       callTimes.push(Date.now());
-      return Promise.resolve({ content: "ok", usage: { inputTokens: 1, outputTokens: 1 }, stopReason: "end" });
+      return Promise.resolve({
+        content: "ok",
+        usage: { inputTokens: 1, outputTokens: 1 },
+        stopReason: "end",
+      });
     },
   };
 

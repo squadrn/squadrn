@@ -45,7 +45,8 @@ deno lint    # Lint
 
 1. Fork the repository and create a branch from `main`
 2. Make your changes with tests where applicable
-3. Ensure all checks pass: `deno lint && deno fmt --check && deno check cli/mod.ts && deno test --allow-all`
+3. Ensure all checks pass:
+   `deno lint && deno fmt --check && deno check cli/mod.ts && deno test --allow-all`
 4. Open a pull request against `main`
 5. Describe what your change does and why
 

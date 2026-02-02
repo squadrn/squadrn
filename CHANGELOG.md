@@ -2,8 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
+adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.1.0] - 2026-02-02
 
@@ -22,7 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Task management with status workflow (inbox -> assigned -> in_progress -> review -> done)
 - Activity logging and notification system
 - CI/CD workflows (lint, format, type check, test across OS matrix; release with compiled binaries)
-- Documentation: getting started, architecture, configuration, plugin development, agents, API reference
+- Documentation: getting started, architecture, configuration, plugin development, agents, API
+  reference
 - Install script for Linux and macOS
 
 [0.1.0]: https://github.com/squadrn/squadrn/releases/tag/v0.1.0

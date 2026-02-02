@@ -6,6 +6,7 @@
     "@squadrn/types": "../types/mod.ts",
     "@std/toml": "jsr:@std/toml@^1",
     "@db/sqlite": "jsr:@db/sqlite@^0.12",
-    "@std/assert": "jsr:@std/assert@^1"
+    "@std/assert": "jsr:@std/assert@^1",
+    "@std/path": "jsr:@std/path@^1"
   }
 }

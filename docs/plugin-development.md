@@ -1,17 +1,18 @@
 # Plugin Development
 
-This guide covers building Squadrn plugins from scratch. Plugins extend Squadrn's capabilities — channels, LLMs, tools, storage, UI, or custom functionality.
+This guide covers building Squadrn plugins from scratch. Plugins extend Squadrn's capabilities —
+channels, LLMs, tools, storage, UI, or custom functionality.
 
 ## Plugin Types
 
-| Type | Purpose | Registration Hook |
-|------|---------|-------------------|
-| `channel` | Messaging platform integrations | `core.registerChannel()` |
-| `llm` | Language model backends | `core.registerLLM()` |
-| `tool` | Agent capabilities (search, code exec) | `core.registerTool()` |
-| `storage` | Alternative persistence backends | — |
-| `ui` | Dashboards, monitoring | — |
-| `custom` | Anything else | — |
+| Type      | Purpose                                | Registration Hook        |
+| --------- | -------------------------------------- | ------------------------ |
+| `channel` | Messaging platform integrations        | `core.registerChannel()` |
+| `llm`     | Language model backends                | `core.registerLLM()`     |
+| `tool`    | Agent capabilities (search, code exec) | `core.registerTool()`    |
+| `storage` | Alternative persistence backends       | —                        |
+| `ui`      | Dashboards, monitoring                 | —                        |
+| `custom`  | Anything else                          | —                        |
 
 ## Directory Structure
 
@@ -52,11 +53,11 @@ Plugins declare required Deno permissions upfront. Users can audit these before 
 
 ```typescript
 interface PluginPermissions {
-  net?: string[];    // Allowed network domains
-  read?: string[];   // File-system read paths
-  write?: string[];  // File-system write paths
-  env?: string[];    // Required environment variables
-  run?: string[];    // Executables the plugin may spawn
+  net?: string[]; // Allowed network domains
+  read?: string[]; // File-system read paths
+  write?: string[]; // File-system write paths
+  env?: string[]; // Required environment variables
+  run?: string[]; // Executables the plugin may spawn
 }
 ```
 
@@ -115,7 +116,8 @@ const lastSync = await core.storage.get<number>("last_sync");
 await core.storage.delete("last_sync");
 ```
 
-Keys are prefixed internally — `core.storage.get("state")` in plugin `channel-telegram` resolves to `plugin:channel-telegram:state`.
+Keys are prefixed internally — `core.storage.get("state")` in plugin `channel-telegram` resolves to
+`plugin:channel-telegram:state`.
 
 ### Config
 
@@ -317,7 +319,8 @@ During development, test locally by pointing to your repo:
 squadrn plugin add https://github.com/yourname/mc-plugin-slack
 ```
 
-The gateway fetches `manifest.json` from the repo, validates permissions, and registers the plugin in `~/.squadrn/plugins.json`. On the next start, the plugin is loaded.
+The gateway fetches `manifest.json` from the repo, validates permissions, and registers the plugin
+in `~/.squadrn/plugins.json`. On the next start, the plugin is loaded.
 
 ## Best Practices
 

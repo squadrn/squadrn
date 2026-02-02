@@ -1,6 +1,7 @@
 # Smoke Test — v0.1.0
 
-Manual verification checklist for a release. Run through each step on a clean machine (or container).
+Manual verification checklist for a release. Run through each step on a clean machine (or
+container).
 
 ## Prerequisites
 

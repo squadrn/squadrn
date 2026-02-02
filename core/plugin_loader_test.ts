@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "jsr:@std/assert@^1";
+import { assertEquals, assertRejects } from "@std/assert";
 import type {
   ChannelProvider,
   IncomingMessage,
@@ -40,7 +40,9 @@ function makeMockPlugin(
   };
 }
 
-function makeLoader(pluginConfig: Record<string, Record<string, unknown>> = {}) {
+function makeLoader(
+  pluginConfig: Record<string, Record<string, unknown>> = {},
+) {
   const events = new EventBus();
   const storage = new SqliteStorage(":memory:");
   const loader = new PluginLoader(events, storage, pluginConfig);
@@ -70,7 +72,10 @@ Deno.test("PluginLoader - loadOne registers a custom plugin", async () => {
 
 Deno.test("PluginLoader - loadOne registers a channel plugin", async () => {
   const { loader } = makeLoader();
-  const manifest = makeManifest({ name: "@test/channel-test", type: "channel" });
+  const manifest = makeManifest({
+    name: "@test/channel-test",
+    type: "channel",
+  });
 
   const mockChannel: ChannelProvider = {
     name: "test-channel",
@@ -104,11 +109,12 @@ Deno.test("PluginLoader - loadOne registers an LLM plugin", async () => {
   const mockLLM: LLMProvider = {
     name: "test-llm",
     supportsTools: false,
-    complete: () => Promise.resolve({
-      content: "hello",
-      usage: { inputTokens: 1, outputTokens: 1 },
-      stopReason: "end" as const,
-    }),
+    complete: () =>
+      Promise.resolve({
+        content: "hello",
+        usage: { inputTokens: 1, outputTokens: 1 },
+        stopReason: "end" as const,
+      }),
   };
 
   const plugin = makeMockPlugin(manifest, (api) => {
@@ -150,7 +156,9 @@ Deno.test("PluginLoader - plugin receives namespaced storage", async () => {
   await storedApi!.storage.set("mykey", { data: 42 });
 
   // Read from underlying storage — should be prefixed
-  const raw = await storage.get<{ data: number }>("plugin:@test/storage-test:mykey");
+  const raw = await storage.get<{ data: number }>(
+    "plugin:@test/storage-test:mykey",
+  );
   assertEquals(raw, { data: 42 });
 
   // Read through plugin API
@@ -212,24 +220,27 @@ Deno.test("PluginLoader - plugin can subscribe to events", async () => {
   assertEquals(received, [{ text: "hello" }]);
 });
 
-Deno.test("PluginLoader - loadOne rejects invalid plugin (no register)", async () => {
-  const { loader } = makeLoader();
-  const manifest = makeManifest();
+Deno.test(
+  "PluginLoader - loadOne rejects invalid plugin (no register)",
+  async () => {
+    const { loader } = makeLoader();
+    const manifest = makeManifest();
 
-  const badPlugin = { manifest } as unknown as Plugin; // missing register
+    const badPlugin = { manifest } as unknown as Plugin; // missing register
 
-  const entry: InstalledPlugin = {
-    url: "https://github.com/test/bad-plugin",
-    manifest,
-    installedAt: new Date().toISOString(),
-  };
+    const entry: InstalledPlugin = {
+      url: "https://github.com/test/bad-plugin",
+      manifest,
+      installedAt: new Date().toISOString(),
+    };
 
-  await assertRejects(
-    () => loader.loadOne(manifest.name, entry, badPlugin),
-    Error,
-    "does not export a valid Plugin",
-  );
-});
+    await assertRejects(
+      () => loader.loadOne(manifest.name, entry, badPlugin),
+      Error,
+      "does not export a valid Plugin",
+    );
+  },
+);
 
 Deno.test("PluginLoader - loadAll emits plugin:loaded events", async () => {
   const { loader, events } = makeLoader();
@@ -267,7 +278,9 @@ Deno.test("PluginLoader - loadAll emits plugin:loaded events", async () => {
 
   try {
     await Deno.remove(pluginsPath);
-  } catch { /* cleanup */ }
+  } catch {
+    /* cleanup */
+  }
 });
 
 Deno.test("PluginLoader - uninstall removes plugin", async () => {
@@ -311,29 +324,34 @@ Deno.test("PluginLoader - uninstall removes plugin", async () => {
 
   try {
     await Deno.remove(pluginsPath);
-  } catch { /* cleanup */ }
+  } catch {
+    /* cleanup */
+  }
 });
 
-Deno.test("PluginLoader - channel plugin type does NOT get registerLLM hook", async () => {
-  const { loader } = makeLoader();
-  const manifest = makeManifest({ name: "@test/hook-test", type: "channel" });
+Deno.test(
+  "PluginLoader - channel plugin type does NOT get registerLLM hook",
+  async () => {
+    const { loader } = makeLoader();
+    const manifest = makeManifest({ name: "@test/hook-test", type: "channel" });
 
-  let hasRegisterLLM = false;
-  let hasRegisterChannel = false;
-  const plugin = makeMockPlugin(manifest, (api) => {
-    hasRegisterLLM = typeof api.registerLLM === "function";
-    hasRegisterChannel = typeof api.registerChannel === "function";
-    return Promise.resolve();
-  });
+    let hasRegisterLLM = false;
+    let hasRegisterChannel = false;
+    const plugin = makeMockPlugin(manifest, (api) => {
+      hasRegisterLLM = typeof api.registerLLM === "function";
+      hasRegisterChannel = typeof api.registerChannel === "function";
+      return Promise.resolve();
+    });
 
-  const entry: InstalledPlugin = {
-    url: "https://github.com/test/hook-test",
-    manifest,
-    installedAt: new Date().toISOString(),
-  };
+    const entry: InstalledPlugin = {
+      url: "https://github.com/test/hook-test",
+      manifest,
+      installedAt: new Date().toISOString(),
+    };
 
-  await loader.loadOne(manifest.name, entry, plugin);
+    await loader.loadOne(manifest.name, entry, plugin);
 
-  assertEquals(hasRegisterChannel, true);
-  assertEquals(hasRegisterLLM, false);
-});
+    assertEquals(hasRegisterChannel, true);
+    assertEquals(hasRegisterLLM, false);
+  },
+);

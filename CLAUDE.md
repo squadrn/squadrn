@@ -15,7 +15,7 @@ TypeScript. It orchestrates persistent AI agents — it doesn't run them (LLMs a
 deno check cli/mod.ts          # Type-check the project
 deno fmt                       # Format (100 char lines, 2-space indent)
 deno lint                      # Lint with recommended rules
-deno test                      # Run all tests
+deno task test                 # Run all tests
 deno test core/event_bus_test.ts  # Run a single test file
 
 # Run the CLI locally

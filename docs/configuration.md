@@ -23,11 +23,11 @@ port = 18900            # HTTP/IPC port
 log_level = "info"      # "debug" | "info" | "warn" | "error"
 ```
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `host` | `string` | `"127.0.0.1"` | Address the gateway binds to |
-| `port` | `number` | `18900` | Port for HTTP fallback and IPC |
-| `log_level` | `LogLevel` | `"info"` | Minimum log level. `"debug"` for verbose output, `"error"` for quiet |
+| Field       | Type       | Default       | Description                                                          |
+| ----------- | ---------- | ------------- | -------------------------------------------------------------------- |
+| `host`      | `string`   | `"127.0.0.1"` | Address the gateway binds to                                         |
+| `port`      | `number`   | `18900`       | Port for HTTP fallback and IPC                                       |
+| `log_level` | `LogLevel` | `"info"`      | Minimum log level. `"debug"` for verbose output, `"error"` for quiet |
 
 ### `[storage]`
 
@@ -39,10 +39,10 @@ adapter = "sqlite"
 path = "~/.squadrn/data.db"
 ```
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `adapter` | `string` | `"sqlite"` | Storage backend. Default SQLite, swappable via storage plugins |
-| `path` | `string` | `"~/.squadrn/data.db"` | Database file path (for SQLite) |
+| Field     | Type     | Default                | Description                                                    |
+| --------- | -------- | ---------------------- | -------------------------------------------------------------- |
+| `adapter` | `string` | `"sqlite"`             | Storage backend. Default SQLite, swappable via storage plugins |
+| `path`    | `string` | `"~/.squadrn/data.db"` | Database file path (for SQLite)                                |
 
 ### `[agents.<name>]`
 
@@ -58,14 +58,14 @@ heartbeat = "*/15 * * * *"
 soul_file = "~/.squadrn/agents/jarvis/SOUL.md"
 ```
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `name` | `string` | *required* | Display name |
-| `role` | `string` | *required* | Agent's role description |
-| `llm` | `string` | *required* | Name of the LLM plugin to use (e.g., `"claude"`, `"openai"`) |
-| `channels` | `string[]` | `[]` | Channel plugins this agent listens on. Empty means internal-only |
-| `heartbeat` | `string` | `"*/15 * * * *"` | Cron expression for heartbeat interval |
-| `soul_file` | `string` | *required* | Path to the agent's SOUL.md personality file |
+| Field       | Type       | Default          | Description                                                      |
+| ----------- | ---------- | ---------------- | ---------------------------------------------------------------- |
+| `name`      | `string`   | _required_       | Display name                                                     |
+| `role`      | `string`   | _required_       | Agent's role description                                         |
+| `llm`       | `string`   | _required_       | Name of the LLM plugin to use (e.g., `"claude"`, `"openai"`)     |
+| `channels`  | `string[]` | `[]`             | Channel plugins this agent listens on. Empty means internal-only |
+| `heartbeat` | `string`   | `"*/15 * * * *"` | Cron expression for heartbeat interval                           |
+| `soul_file` | `string`   | _required_       | Path to the agent's SOUL.md personality file                     |
 
 ### `[plugins.<name>]`
 
@@ -122,21 +122,21 @@ max_tokens = 4096
 
 Some plugins require environment variables (declared in their `manifest.json` permissions):
 
-| Variable | Plugin | Description |
-|----------|--------|-------------|
+| Variable             | Plugin             | Description            |
+| -------------------- | ------------------ | ---------------------- |
 | `TELEGRAM_BOT_TOKEN` | `channel-telegram` | Telegram Bot API token |
-| `ANTHROPIC_API_KEY` | `llm-claude` | Anthropic API key |
-| `OPENAI_API_KEY` | `llm-openai` | OpenAI API key |
+| `ANTHROPIC_API_KEY`  | `llm-claude`       | Anthropic API key      |
+| `OPENAI_API_KEY`     | `llm-openai`       | OpenAI API key         |
 
 ## File Locations
 
-| Path | Description |
-|------|-------------|
-| `~/.squadrn/config.toml` | Main configuration file |
-| `~/.squadrn/data.db` | SQLite database (default) |
-| `~/.squadrn/gateway.pid` | PID file for the running gateway |
-| `~/.squadrn/plugins.json` | Plugin registry |
-| `~/.squadrn/agents/<name>/SOUL.md` | Agent personality files |
+| Path                               | Description                      |
+| ---------------------------------- | -------------------------------- |
+| `~/.squadrn/config.toml`           | Main configuration file          |
+| `~/.squadrn/data.db`               | SQLite database (default)        |
+| `~/.squadrn/gateway.pid`           | PID file for the running gateway |
+| `~/.squadrn/plugins.json`          | Plugin registry                  |
+| `~/.squadrn/agents/<name>/SOUL.md` | Agent personality files          |
 
 ## Heartbeat Cron Format
 
@@ -153,6 +153,7 @@ Heartbeats use standard 5-field cron format:
 ```
 
 Examples:
+
 - `*/15 * * * *` — every 15 minutes (default)
 - `*/5 * * * *` — every 5 minutes (more responsive)
 - `0 * * * *` — every hour

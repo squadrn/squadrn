@@ -1,6 +1,7 @@
 # Architecture
 
-Squadrn is structured as three workspace modules that form a layered architecture: types (contracts), core (engine), and CLI (interface).
+Squadrn is structured as three workspace modules that form a layered architecture: types
+(contracts), core (engine), and CLI (interface).
 
 ## System Overview
 
@@ -44,12 +45,16 @@ Squadrn is structured as three workspace modules that form a layered architectur
 
 ### `types/` — `@squadrn/types`
 
-The plugin contract. Shared interfaces and branded ID types consumed by core, CLI, and external plugins. Published at [jsr.io/@squadrn/types](https://jsr.io/@squadrn/types).
+The plugin contract. Shared interfaces and branded ID types consumed by core, CLI, and external
+plugins. Published at [jsr.io/@squadrn/types](https://jsr.io/@squadrn/types).
 
 Key exports:
-- **Branded IDs**: `AgentId`, `TaskId`, `SessionId`, `CommentId`, `NotificationId`, `ActivityId`, `WorkspaceId`
+
+- **Branded IDs**: `AgentId`, `TaskId`, `SessionId`, `CommentId`, `NotificationId`, `ActivityId`,
+  `WorkspaceId`
 - **Core entities**: `Agent`, `Task`, `Session`, `Notification`, `Activity`, `Comment`, `Message`
-- **Plugin interfaces**: `Plugin`, `PluginAPI`, `PluginManifest`, `ChannelProvider`, `LLMProvider`, `ToolProvider`
+- **Plugin interfaces**: `Plugin`, `PluginAPI`, `PluginManifest`, `ChannelProvider`, `LLMProvider`,
+  `ToolProvider`
 - **Config types**: `SquadrnConfig`, `GatewayConfig`, `StorageConfig`, `AgentConfig`
 - **Events**: `EventName`, `EventHandler`, `EventEmitter`
 
@@ -58,9 +63,13 @@ Key exports:
 The gateway daemon engine. Contains all runtime logic.
 
 Components:
-- **Gateway** — Orchestrates startup and shutdown: loads config, initializes storage, loads plugins, starts scheduler
-- **EventBus** — In-memory pub/sub with typed events. Handlers for the same event run in parallel; one handler's error doesn't block others
-- **PluginLoader** — Fetches plugins from GitHub URLs, validates manifest permissions, loads via Deno URL imports
+
+- **Gateway** — Orchestrates startup and shutdown: loads config, initializes storage, loads plugins,
+  starts scheduler
+- **EventBus** — In-memory pub/sub with typed events. Handlers for the same event run in parallel;
+  one handler's error doesn't block others
+- **PluginLoader** — Fetches plugins from GitHub URLs, validates manifest permissions, loads via
+  Deno URL imports
 - **SessionManager** — Per-agent state: conversation history, working memory, current task
 - **TaskManager** — Task CRUD with status transitions and comment system
 - **Scheduler** — Cron-based job execution. Manages agent heartbeats
@@ -129,23 +138,25 @@ squadrn stop
 
 The EventBus uses typed event names organized by category:
 
-| Category | Events |
-|----------|--------|
-| Lifecycle | `gateway:started`, `gateway:stopping`, `plugin:loaded`, `plugin:error`, `agent:started`, `agent:stopped`, `agent:error` |
-| Messages | `message:received`, `message:send`, `message:delivered` |
-| Tasks | `task:created`, `task:assigned`, `task:updated`, `task:completed`, `task:commented`, `task:status_changed` |
-| Agent | `agent:heartbeat`, `agent:thinking`, `agent:response` |
-| Sessions | `session:created`, `session:updated`, `session:ended` |
-| Notifications | `notification:created`, `notification:delivered` |
-| Activities | `activity:recorded` |
+| Category      | Events                                                                                                                  |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Lifecycle     | `gateway:started`, `gateway:stopping`, `plugin:loaded`, `plugin:error`, `agent:started`, `agent:stopped`, `agent:error` |
+| Messages      | `message:received`, `message:send`, `message:delivered`                                                                 |
+| Tasks         | `task:created`, `task:assigned`, `task:updated`, `task:completed`, `task:commented`, `task:status_changed`              |
+| Agent         | `agent:heartbeat`, `agent:thinking`, `agent:response`                                                                   |
+| Sessions      | `session:created`, `session:updated`, `session:ended`                                                                   |
+| Notifications | `notification:created`, `notification:delivered`                                                                        |
+| Activities    | `activity:recorded`                                                                                                     |
 
 All 27 event types are defined in the `EventName` union type.
 
 ## Storage Model
 
-Storage uses a key-value table with a `collection` column for namespace queries. Keys follow the pattern `collection:id` (e.g., `agents:abc-123`, `tasks:def-456`).
+Storage uses a key-value table with a `collection` column for namespace queries. Keys follow the
+pattern `collection:id` (e.g., `agents:abc-123`, `tasks:def-456`).
 
-The default SQLite adapter stores all data in `~/.squadrn/data.db`. The `StorageAdapter` interface allows swapping to Postgres, Redis, or any other backend via a storage plugin.
+The default SQLite adapter stores all data in `~/.squadrn/data.db`. The `StorageAdapter` interface
+allows swapping to Postgres, Redis, or any other backend via a storage plugin.
 
 ## IPC: CLI ↔ Gateway
 
@@ -164,9 +175,11 @@ Each plugin receives a `PluginAPI` instance that provides:
 - **Scoped event access** — subscribe to and emit gateway events
 - **Read-only config** — only the plugin's own section from `config.toml`
 - **Structured logger** — auto-tagged with plugin name
-- **Type-specific hooks** — `registerChannel()`, `registerLLM()`, `registerTool()` based on declared type
+- **Type-specific hooks** — `registerChannel()`, `registerLLM()`, `registerTool()` based on declared
+  type
 
-Plugins declare required Deno permissions upfront in `manifest.json`. The gateway enforces these at load time.
+Plugins declare required Deno permissions upfront in `manifest.json`. The gateway enforces these at
+load time.
 
 ## Branded ID Types
 
@@ -177,4 +190,6 @@ type AgentId = string & { readonly __brand: "AgentId" };
 type TaskId = string & { readonly __brand: "TaskId" };
 ```
 
-This means you cannot pass an `AgentId` where a `TaskId` is expected, even though both are strings at runtime. Factory functions like `createAgentId()` and `createTaskId()` generate new UUIDs with the correct brand.
+This means you cannot pass an `AgentId` where a `TaskId` is expected, even though both are strings
+at runtime. Factory functions like `createAgentId()` and `createTaskId()` generate new UUIDs with
+the correct brand.
