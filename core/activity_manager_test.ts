@@ -1,12 +1,7 @@
 import { assertEquals } from "jsr:@std/assert";
 import { ActivityManager } from "./activity_manager.ts";
 import { EventBus } from "./event_bus.ts";
-import type {
-  Activity,
-  QueryFilter,
-  StorageAdapter,
-  Transaction,
-} from "@squadrn/types";
+import type { Activity, QueryFilter, StorageAdapter, Transaction } from "@squadrn/types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -34,7 +29,9 @@ function makeStorage(): StorageAdapter {
     async transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {
       const tx: Transaction = {
         get: async <U>(key: string) => (store.get(key) as U) ?? null,
-        set: async <U>(key: string, value: U) => { store.set(key, value); },
+        set: async <U>(key: string, value: U) => {
+          store.set(key, value);
+        },
         delete: async (key: string) => store.delete(key),
       };
       return fn(tx);
@@ -75,7 +72,9 @@ Deno.test("record - creates activity with defaults", async () => {
 Deno.test("record - emits activity:recorded", async () => {
   const { mgr, events } = setup();
   const emitted: unknown[] = [];
-  events.on("activity:recorded", (p) => { emitted.push(p); });
+  events.on("activity:recorded", (p) => {
+    emitted.push(p);
+  });
 
   await mgr.record({
     type: "agent_started",
@@ -94,8 +93,20 @@ Deno.test("record - emits activity:recorded", async () => {
 
 Deno.test("getFeed - returns all activities", async () => {
   const { mgr } = setup();
-  await mgr.record({ type: "task_created", actorId: "u1", actorType: "user", targetType: "task", targetId: "t1" });
-  await mgr.record({ type: "agent_started", actorId: "s", actorType: "system", targetType: "agent", targetId: "a1" });
+  await mgr.record({
+    type: "task_created",
+    actorId: "u1",
+    actorType: "user",
+    targetType: "task",
+    targetId: "t1",
+  });
+  await mgr.record({
+    type: "agent_started",
+    actorId: "s",
+    actorType: "system",
+    targetType: "agent",
+    targetId: "a1",
+  });
 
   const feed = await mgr.getFeed();
   assertEquals(feed.length, 2);
@@ -103,8 +114,20 @@ Deno.test("getFeed - returns all activities", async () => {
 
 Deno.test("getFeed - filters by type", async () => {
   const { mgr } = setup();
-  await mgr.record({ type: "task_created", actorId: "u1", actorType: "user", targetType: "task", targetId: "t1" });
-  await mgr.record({ type: "agent_started", actorId: "s", actorType: "system", targetType: "agent", targetId: "a1" });
+  await mgr.record({
+    type: "task_created",
+    actorId: "u1",
+    actorType: "user",
+    targetType: "task",
+    targetId: "t1",
+  });
+  await mgr.record({
+    type: "agent_started",
+    actorId: "s",
+    actorType: "system",
+    targetType: "agent",
+    targetId: "a1",
+  });
 
   const feed = await mgr.getFeed({ type: "task_created" });
   assertEquals(feed.length, 1);
@@ -114,7 +137,13 @@ Deno.test("getFeed - filters by type", async () => {
 Deno.test("getFeed - respects limit and offset", async () => {
   const { mgr } = setup();
   for (let i = 0; i < 5; i++) {
-    await mgr.record({ type: "agent_heartbeat", actorId: `a${i}`, actorType: "agent", targetType: "agent", targetId: `a${i}` });
+    await mgr.record({
+      type: "agent_heartbeat",
+      actorId: `a${i}`,
+      actorType: "agent",
+      targetType: "agent",
+      targetId: `a${i}`,
+    });
   }
 
   const page = await mgr.getFeed(undefined, 2, 1);
@@ -127,9 +156,27 @@ Deno.test("getFeed - respects limit and offset", async () => {
 
 Deno.test("getForTask - returns activities for a specific task", async () => {
   const { mgr } = setup();
-  await mgr.record({ type: "task_created", actorId: "u1", actorType: "user", targetType: "task", targetId: "t1" });
-  await mgr.record({ type: "task_commented", actorId: "a1", actorType: "agent", targetType: "task", targetId: "t1" });
-  await mgr.record({ type: "task_created", actorId: "u1", actorType: "user", targetType: "task", targetId: "t2" });
+  await mgr.record({
+    type: "task_created",
+    actorId: "u1",
+    actorType: "user",
+    targetType: "task",
+    targetId: "t1",
+  });
+  await mgr.record({
+    type: "task_commented",
+    actorId: "a1",
+    actorType: "agent",
+    targetType: "task",
+    targetId: "t1",
+  });
+  await mgr.record({
+    type: "task_created",
+    actorId: "u1",
+    actorType: "user",
+    targetType: "task",
+    targetId: "t2",
+  });
 
   const result = await mgr.getForTask("t1");
   assertEquals(result.length, 2);
@@ -137,9 +184,27 @@ Deno.test("getForTask - returns activities for a specific task", async () => {
 
 Deno.test("getForAgent - returns activities by actor", async () => {
   const { mgr } = setup();
-  await mgr.record({ type: "agent_heartbeat", actorId: "a1", actorType: "agent", targetType: "agent", targetId: "a1" });
-  await mgr.record({ type: "task_commented", actorId: "a1", actorType: "agent", targetType: "task", targetId: "t1" });
-  await mgr.record({ type: "agent_heartbeat", actorId: "a2", actorType: "agent", targetType: "agent", targetId: "a2" });
+  await mgr.record({
+    type: "agent_heartbeat",
+    actorId: "a1",
+    actorType: "agent",
+    targetType: "agent",
+    targetId: "a1",
+  });
+  await mgr.record({
+    type: "task_commented",
+    actorId: "a1",
+    actorType: "agent",
+    targetType: "task",
+    targetId: "t1",
+  });
+  await mgr.record({
+    type: "agent_heartbeat",
+    actorId: "a2",
+    actorType: "agent",
+    targetType: "agent",
+    targetId: "a2",
+  });
 
   const result = await mgr.getForAgent("a1");
   assertEquals(result.length, 2);
@@ -151,7 +216,13 @@ Deno.test("getForAgent - returns activities by actor", async () => {
 
 Deno.test("getRecent - returns activities since a given date", async () => {
   const { mgr, storage } = setup();
-  const old = await mgr.record({ type: "agent_started", actorId: "s", actorType: "system", targetType: "agent", targetId: "a1" });
+  const old = await mgr.record({
+    type: "agent_started",
+    actorId: "s",
+    actorType: "system",
+    targetType: "agent",
+    targetId: "a1",
+  });
 
   // Backdate the first one
   const stored = await storage.get<Activity>(`activities:${old.id}`);
@@ -160,7 +231,13 @@ Deno.test("getRecent - returns activities since a given date", async () => {
     await storage.set(`activities:${old.id}`, stored);
   }
 
-  await mgr.record({ type: "agent_stopped", actorId: "s", actorType: "system", targetType: "agent", targetId: "a1" });
+  await mgr.record({
+    type: "agent_stopped",
+    actorId: "s",
+    actorType: "system",
+    targetType: "agent",
+    targetId: "a1",
+  });
 
   const recent = await mgr.getRecent(new Date(Date.now() - 50_000));
   assertEquals(recent.length, 1);
@@ -253,9 +330,15 @@ Deno.test("formatActivity - task_created", () => {
 
 Deno.test("formatActivity - task_assigned", () => {
   const a = {
-    id: "x", workspaceId: "", type: "task_assigned",
-    actorId: "system", actorType: "system", targetType: "task", targetId: "#1",
-    data: { agentIds: ["Loki", "Jarvis"] }, createdAt: new Date(),
+    id: "x",
+    workspaceId: "",
+    type: "task_assigned",
+    actorId: "system",
+    actorType: "system",
+    targetType: "task",
+    targetId: "#1",
+    data: { agentIds: ["Loki", "Jarvis"] },
+    createdAt: new Date(),
   } as unknown as Activity;
 
   assertEquals(ActivityManager.formatActivity(a), "system assigned task #1 to Loki and Jarvis");
@@ -263,9 +346,15 @@ Deno.test("formatActivity - task_assigned", () => {
 
 Deno.test("formatActivity - task_status_changed", () => {
   const a = {
-    id: "x", workspaceId: "", type: "task_status_changed",
-    actorId: "system", actorType: "system", targetType: "task", targetId: "#1",
-    data: { from: "in_progress", to: "review" }, createdAt: new Date(),
+    id: "x",
+    workspaceId: "",
+    type: "task_status_changed",
+    actorId: "system",
+    actorType: "system",
+    targetType: "task",
+    targetId: "#1",
+    data: { from: "in_progress", to: "review" },
+    createdAt: new Date(),
   } as unknown as Activity;
 
   assertEquals(ActivityManager.formatActivity(a), "Task #1 moved from in_progress to review");
@@ -273,9 +362,15 @@ Deno.test("formatActivity - task_status_changed", () => {
 
 Deno.test("formatActivity - agent_started", () => {
   const a = {
-    id: "x", workspaceId: "", type: "agent_started",
-    actorId: "Jarvis", actorType: "system", targetType: "agent", targetId: "Jarvis",
-    data: {}, createdAt: new Date(),
+    id: "x",
+    workspaceId: "",
+    type: "agent_started",
+    actorId: "Jarvis",
+    actorType: "system",
+    targetType: "agent",
+    targetId: "Jarvis",
+    data: {},
+    createdAt: new Date(),
   } as unknown as Activity;
 
   assertEquals(ActivityManager.formatActivity(a), "Agent Jarvis started");
@@ -283,9 +378,15 @@ Deno.test("formatActivity - agent_started", () => {
 
 Deno.test("formatActivity - plugin_loaded with version", () => {
   const a = {
-    id: "x", workspaceId: "", type: "plugin_loaded",
-    actorId: "system", actorType: "system", targetType: "plugin", targetId: "telegram",
-    data: { version: "1.2.0" }, createdAt: new Date(),
+    id: "x",
+    workspaceId: "",
+    type: "plugin_loaded",
+    actorId: "system",
+    actorType: "system",
+    targetType: "plugin",
+    targetId: "telegram",
+    data: { version: "1.2.0" },
+    createdAt: new Date(),
   } as unknown as Activity;
 
   assertEquals(ActivityManager.formatActivity(a), "Plugin telegram loaded (v1.2.0)");

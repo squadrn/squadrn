@@ -15,11 +15,7 @@ import type {
 } from "@squadrn/types";
 import { EventBus } from "./event_bus.ts";
 import { SessionManager } from "./session_manager.ts";
-import {
-  AgentRunner,
-  parseMentions,
-  parseWorkingMemoryUpdates,
-} from "./agent_runner.ts";
+import { AgentRunner, parseMentions, parseWorkingMemoryUpdates } from "./agent_runner.ts";
 
 // ── Test helpers ─────────────────────────────────────────────────────────────
 
@@ -43,7 +39,10 @@ function createMemoryStorage(): StorageAdapter {
         let match = true;
         if (filter.where) {
           for (const [k, v] of Object.entries(filter.where)) {
-            if (item[k] !== v) { match = false; break; }
+            if (item[k] !== v) {
+              match = false;
+              break;
+            }
           }
         }
         if (match) results.push(value as T);
@@ -53,7 +52,9 @@ function createMemoryStorage(): StorageAdapter {
     async transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {
       const tx: Transaction = {
         get: async <U>(key: string) => (store.get(key) as U) ?? null,
-        set: async <U>(key: string, value: U) => { store.set(key, value); },
+        set: async <U>(key: string, value: U) => {
+          store.set(key, value);
+        },
         delete: async (key: string) => store.delete(key),
       };
       return fn(tx);
@@ -191,8 +192,12 @@ Deno.test("run() returns LLM response", async () => {
 Deno.test("run() emits agent:thinking and agent:response events", async () => {
   const { runner, events } = await setupRunner();
   const emitted: string[] = [];
-  events.on("agent:thinking", () => { emitted.push("thinking"); });
-  events.on("agent:response", () => { emitted.push("response"); });
+  events.on("agent:thinking", () => {
+    emitted.push("thinking");
+  });
+  events.on("agent:response", () => {
+    emitted.push("response");
+  });
 
   await runner.run("Hi");
   assertEquals(emitted, ["thinking", "response"]);
@@ -340,7 +345,9 @@ Deno.test("run() detects @mentions in response", async () => {
   );
 
   const mentionEvents: unknown[] = [];
-  events.on("message:received", (data) => { mentionEvents.push(data); });
+  events.on("message:received", (data) => {
+    mentionEvents.push(data);
+  });
 
   await runner.run("I need help");
 

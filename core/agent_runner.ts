@@ -64,9 +64,7 @@ const BUILTIN_TOOLS: ToolDefinition[] = [
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function expandHome(p: string): string {
-  return p.startsWith("~")
-    ? p.replace(/^~/, Deno.env.get("HOME") ?? "")
-    : p;
+  return p.startsWith("~") ? p.replace(/^~/, Deno.env.get("HOME") ?? "") : p;
 }
 
 /** Extract @mentions from text. Returns unique agent names. */
@@ -246,7 +244,8 @@ export class AgentRunner {
       // Add assistant message with tool calls indicator
       currentMessages.push({
         role: "assistant",
-        content: response.content || `[tool calls: ${response.toolCalls.map((t) => t.name).join(", ")}]`,
+        content: response.content ||
+          `[tool calls: ${response.toolCalls.map((t) => t.name).join(", ")}]`,
       });
 
       // Execute each tool call
@@ -256,7 +255,9 @@ export class AgentRunner {
       for (const result of results) {
         currentMessages.push({
           role: "user",
-          content: `[tool result for ${result.callId}]: ${result.content}${result.isError ? " (error)" : ""}`,
+          content: `[tool result for ${result.callId}]: ${result.content}${
+            result.isError ? " (error)" : ""
+          }`,
         });
       }
     }
@@ -373,11 +374,5 @@ export class AgentRunner {
   }
 }
 
-export class AgentRunError extends Error {
-  public readonly agentId: string;
-
-  constructor(agentId: string, message: string, _cause?: Error) {
-    super(`Agent "${agentId}" run failed: ${message}`);
-    this.agentId = agentId;
-  }
-}
+import { AgentError } from "./errors.ts";
+export { AgentError as AgentRunError };

@@ -14,88 +14,76 @@
 
 // ── Models (branded IDs, core entities) ─────────────────────────────────────
 export type {
-  AgentId,
-  TaskId,
-  CommentId,
-  SessionId,
-  WorkspaceId,
-  NotificationId,
-  ActivityId,
-  Agent,
-  Comment,
-  Message,
-  SessionContext,
-  Session,
-  Task,
-  Notification,
-  ActivityType,
   Activity,
+  ActivityId,
+  ActivityType,
+  Agent,
+  AgentId,
+  Comment,
+  CommentId,
+  Message,
+  Notification,
+  NotificationId,
   Result,
   SerializedAgent,
+  Session,
+  SessionContext,
+  SessionId,
+  Task,
+  TaskId,
+  WorkspaceId,
 } from "./models.ts";
 
 export {
-  createAgentId,
-  createTaskId,
-  createCommentId,
-  createSessionId,
-  createNotificationId,
   createActivityId,
-  serializeAgent,
+  createAgentId,
+  createCommentId,
+  createNotificationId,
+  createSessionId,
+  createTaskId,
   deserializeAgent,
+  serializeAgent,
 } from "./models.ts";
 
 // ── Events ──────────────────────────────────────────────────────────────────
-export type { EventName, EventHandler, EventEmitter } from "./events.ts";
+export type { EventEmitter, EventHandler, EventName } from "./events.ts";
 
 // ── Plugin system ───────────────────────────────────────────────────────────
 export type {
-  PluginType,
-  PluginPermissions,
-  PluginManifest,
   Logger,
-  PluginAPI,
   Plugin,
+  PluginAPI,
+  PluginManifest,
+  PluginPermissions,
+  PluginType,
 } from "./plugin.ts";
 
 // ── Channel plugins ─────────────────────────────────────────────────────────
-export type {
-  Attachment,
-  IncomingMessage,
-  OutgoingMessage,
-  ChannelProvider,
-} from "./channel.ts";
+export type { Attachment, ChannelProvider, IncomingMessage, OutgoingMessage } from "./channel.ts";
 
 // ── LLM plugins ─────────────────────────────────────────────────────────────
 export type {
-  ToolDefinition,
-  ToolCall,
-  ToolResult,
   CompletionRequest,
   CompletionResponse,
   CompletionWithToolsResponse,
-  StreamChunk,
   LLMProvider,
+  StreamChunk,
+  ToolCall,
+  ToolDefinition,
+  ToolResult,
 } from "./llm.ts";
 
 // ── Tool plugins ────────────────────────────────────────────────────────────
-export type {
-  ToolProvider,
-  ToolExecutionResult,
-} from "./tool.ts";
+export type { ToolExecutionResult, ToolProvider } from "./tool.ts";
 
 // ── Configuration ───────────────────────────────────────────────────────────
 export type {
-  LogLevel,
-  GatewayConfig,
-  StorageConfig,
   AgentConfig,
+  GatewayConfig,
+  LogLevel,
   SquadrnConfig,
+  StorageConfig,
 } from "./config.ts";
 
 // ── Storage ─────────────────────────────────────────────────────────────────
-export type {
-  QueryFilter,
-  Transaction,
-  StorageAdapter,
-} from "./storage.ts";
+export type { QueryFilter, StorageAdapter, Transaction } from "./storage.ts";

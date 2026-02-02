@@ -15,16 +15,8 @@ import { createLogger } from "./logger.ts";
 
 // ── Errors ──────────────────────────────────────────────────────────────────
 
-export class PluginLoadError extends Error {
-  readonly pluginName: string;
-  override readonly cause: Error;
-
-  constructor(pluginName: string, cause: Error) {
-    super(`Failed to load plugin "${pluginName}": ${cause.message}`);
-    this.pluginName = pluginName;
-    this.cause = cause;
-  }
-}
+import { PluginError } from "./errors.ts";
+export { PluginError as PluginLoadError };
 
 // ── Installed plugin record (persisted in plugins.json) ─────────────────────
 
@@ -70,7 +62,11 @@ export class PluginLoader {
 
     const resp = await fetch(manifestUrl);
     if (!resp.ok) {
-      throw new PluginLoadError("unknown", new Error(`Failed to fetch manifest: ${resp.status}`));
+      throw new PluginError(
+        "unknown",
+        "PLUGIN_MANIFEST_FETCH_FAILED",
+        `Failed to fetch manifest: HTTP ${resp.status}`,
+      );
     }
     const manifest = (await resp.json()) as PluginManifest;
     validateManifest(manifest);
@@ -161,7 +157,7 @@ export class PluginLoader {
     }
 
     if (!plugin?.manifest || typeof plugin.register !== "function") {
-      throw new PluginLoadError(name, new Error("Module does not export a valid Plugin"));
+      throw new PluginError(name, "PLUGIN_LOAD_FAILED", "Module does not export a valid Plugin");
     }
 
     validateManifest(plugin.manifest);

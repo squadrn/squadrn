@@ -1,7 +1,7 @@
 import { assertEquals, assertRejects } from "jsr:@std/assert";
-import { TaskManager, TaskNotFoundError, InvalidTransitionError } from "./task_manager.ts";
+import { InvalidTransitionError, TaskManager, TaskNotFoundError } from "./task_manager.ts";
 import { EventBus } from "./event_bus.ts";
-import type { AgentId, StorageAdapter, TaskId, QueryFilter, Transaction } from "@squadrn/types";
+import type { AgentId, QueryFilter, StorageAdapter, TaskId, Transaction } from "@squadrn/types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -29,7 +29,9 @@ function makeStorage(): StorageAdapter {
     async transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {
       const tx: Transaction = {
         get: async <U>(key: string) => (store.get(key) as U) ?? null,
-        set: async <U>(key: string, value: U) => { store.set(key, value); },
+        set: async <U>(key: string, value: U) => {
+          store.set(key, value);
+        },
         delete: async (key: string) => store.delete(key),
       };
       return fn(tx);
@@ -75,7 +77,9 @@ Deno.test("createTask - auto-assigns status when assignees provided", async () =
 Deno.test("createTask - emits task:created", async () => {
   const { mgr, events } = setup();
   const received: unknown[] = [];
-  events.on("task:created", (p: unknown) => { received.push(p); });
+  events.on("task:created", (p: unknown) => {
+    received.push(p);
+  });
 
   await mgr.createTask({ title: "Test" });
   assertEquals(received.length, 1);
@@ -122,7 +126,9 @@ Deno.test("updateTask - throws for missing task", async () => {
 Deno.test("updateTask - emits task:updated", async () => {
   const { mgr, events } = setup();
   const received: unknown[] = [];
-  events.on("task:updated", (p: unknown) => { received.push(p); });
+  events.on("task:updated", (p: unknown) => {
+    received.push(p);
+  });
 
   const task = await mgr.createTask({ title: "T" });
   await mgr.updateTask(task.id, { title: "T2" });
@@ -216,7 +222,9 @@ Deno.test("assignTask - assigns agents", async () => {
 Deno.test("assignTask - emits task:assigned", async () => {
   const { mgr, events } = setup();
   const received: unknown[] = [];
-  events.on("task:assigned", (p: unknown) => { received.push(p); });
+  events.on("task:assigned", (p: unknown) => {
+    received.push(p);
+  });
 
   const task = await mgr.createTask({ title: "T" });
   await mgr.assignTask(task.id, ["a1" as AgentId]);
@@ -292,8 +300,12 @@ Deno.test("transitionTask - emits task:status_changed and task:completed", async
   const { mgr, events } = setup();
   const statusEvents: unknown[] = [];
   const completedEvents: unknown[] = [];
-  events.on("task:status_changed", (p: unknown) => { statusEvents.push(p); });
-  events.on("task:completed", (p: unknown) => { completedEvents.push(p); });
+  events.on("task:status_changed", (p: unknown) => {
+    statusEvents.push(p);
+  });
+  events.on("task:completed", (p: unknown) => {
+    completedEvents.push(p);
+  });
 
   const task = await mgr.createTask({ title: "T", assigneeIds: ["a" as AgentId] });
   await mgr.transitionTask(task.id, "in_progress");
@@ -342,7 +354,9 @@ Deno.test("addComment - parses @mentions", async () => {
 Deno.test("addComment - emits task:commented", async () => {
   const { mgr, events } = setup();
   const received: unknown[] = [];
-  events.on("task:commented", (p: unknown) => { received.push(p); });
+  events.on("task:commented", (p: unknown) => {
+    received.push(p);
+  });
 
   const task = await mgr.createTask({ title: "T" });
   await mgr.addComment(task.id, {

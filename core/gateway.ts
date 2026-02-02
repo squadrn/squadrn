@@ -87,7 +87,10 @@ export class Gateway {
 
     // 2. Initialize storage
     const config = this.#configManager.config;
-    this.#log.info("Initializing storage", { adapter: config.storage.adapter, path: config.storage.path });
+    this.#log.info("Initializing storage", {
+      adapter: config.storage.adapter,
+      path: config.storage.path,
+    });
     this.#storage = new SqliteStorage(config.storage.path);
 
     // 3. Event bus is ready (constructed in constructor)
@@ -121,7 +124,9 @@ export class Gateway {
     if (!this.#running) return;
 
     // 1. Emit stopping event
-    this.#log.info("Gateway stopping, waiting for handlers", { gracePeriodMs: this.#gracePeriodMs });
+    this.#log.info("Gateway stopping, waiting for handlers", {
+      gracePeriodMs: this.#gracePeriodMs,
+    });
     const stopPromise = this.#events.emit("gateway:stopping");
 
     // 2. Wait for handlers with grace period
@@ -195,7 +200,10 @@ export class Gateway {
         return { ok: true, data: { message: "Configuration reloaded" } };
       }
       default:
-        return { ok: false, error: `Unknown action: ${String((cmd as unknown as Record<string, unknown>).action)}` };
+        return {
+          ok: false,
+          error: `Unknown action: ${String((cmd as unknown as Record<string, unknown>).action)}`,
+        };
     }
   }
 

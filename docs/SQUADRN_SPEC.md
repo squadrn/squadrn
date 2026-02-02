@@ -1,12 +1,15 @@
 # Squadrn - Project Specification
 
-> **Purpose**: This document defines the architecture, scope, and implementation guidelines for Squadrn. Use it as the primary context when working with Claude Code.
+> **Purpose**: This document defines the architecture, scope, and implementation guidelines for
+> Squadrn. Use it as the primary context when working with Claude Code.
 
 ---
 
 ## 1. Vision
 
-**Squadrn** is an open-source, plugin-based orchestration layer for AI agent teams. It enables developers to run multiple AI agents that collaborate through shared context, tasks, and communication channels.
+**Squadrn** is an open-source, plugin-based orchestration layer for AI agent teams. It enables
+developers to run multiple AI agents that collaborate through shared context, tasks, and
+communication channels.
 
 ### Core Principles
 
@@ -25,13 +28,13 @@
 
 ## 2. Technical Stack
 
-| Component | Choice | Rationale |
-|-----------|--------|-----------|
-| Runtime | **Deno 2.x** | Native TypeScript, URL imports for plugins, permission sandbox, single binary compilation |
-| Language | **TypeScript (strict)** | Type safety, better DX, self-documenting interfaces |
-| Storage | **SQLite** (via `StorageAdapter` interface) | Zero config, portable, swappable for Postgres later |
-| IPC | **Unix sockets** (primary) + **HTTP** (fallback) | Fast local communication, HTTP for remote/web |
-| Config | **TOML** | Human-readable, supports comments, better than JSON/YAML for config |
+| Component | Choice                                           | Rationale                                                                                 |
+| --------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| Runtime   | **Deno 2.x**                                     | Native TypeScript, URL imports for plugins, permission sandbox, single binary compilation |
+| Language  | **TypeScript (strict)**                          | Type safety, better DX, self-documenting interfaces                                       |
+| Storage   | **SQLite** (via `StorageAdapter` interface)      | Zero config, portable, swappable for Postgres later                                       |
+| IPC       | **Unix sockets** (primary) + **HTTP** (fallback) | Fast local communication, HTTP for remote/web                                             |
+| Config    | **TOML**                                         | Human-readable, supports comments, better than JSON/YAML for config                       |
 
 ---
 
@@ -110,6 +113,7 @@ squadrn task assign <id> <agent># Assign task to agent
 Long-running process that orchestrates everything.
 
 **Responsibilities**:
+
 - Load and manage plugins
 - Maintain agent sessions
 - Route messages between channels and agents
@@ -117,6 +121,7 @@ Long-running process that orchestrates everything.
 - Persist state to storage
 
 **Lifecycle**:
+
 ```
 start → load config → load plugins → restore sessions → listen for events → ...
 ```
@@ -126,6 +131,7 @@ start → load config → load plugins → restore sessions → listen for event
 Handles discovery, validation, and loading of plugins.
 
 **Plugin installation flow**:
+
 ```
 1. User runs: squadrn plugin add https://github.com/user/mc-plugin-slack
 2. CLI fetches manifest.json from repo
@@ -135,6 +141,7 @@ Handles discovery, validation, and loading of plugins.
 ```
 
 **Plugin loading flow**:
+
 ```
 1. Read plugins.json
 2. For each plugin:
@@ -149,22 +156,23 @@ Handles discovery, validation, and loading of plugins.
 Internal pub/sub system for component communication.
 
 **Event categories**:
+
 ```typescript
 // Lifecycle events
-"gateway:started" | "gateway:stopping"
-"plugin:loaded" | "plugin:error"
-"agent:started" | "agent:stopped" | "agent:error"
+"gateway:started" | "gateway:stopping";
+"plugin:loaded" | "plugin:error";
+"agent:started" | "agent:stopped" | "agent:error";
 
 // Message events
-"message:received"  // From channel (e.g., Telegram)
-"message:send"      // To channel
-"message:delivered" // Confirmation
+"message:received"; // From channel (e.g., Telegram)
+"message:send"; // To channel
+"message:delivered"; // Confirmation
 
 // Task events
-"task:created" | "task:assigned" | "task:updated" | "task:completed"
+"task:created" | "task:assigned" | "task:updated" | "task:completed";
 
 // Agent events
-"agent:heartbeat" | "agent:thinking" | "agent:response"
+"agent:heartbeat" | "agent:thinking" | "agent:response";
 ```
 
 ### 4.5 Session Manager
@@ -172,11 +180,12 @@ Internal pub/sub system for component communication.
 Maintains state for each agent session.
 
 **Session structure**:
+
 ```typescript
 interface Session {
   id: string;
   agentId: string;
-  workspaceId: string;  // For future multi-tenancy
+  workspaceId: string; // For future multi-tenancy
   status: "idle" | "active" | "blocked";
   context: {
     conversationHistory: Message[];
@@ -198,10 +207,10 @@ interface StorageAdapter {
   get<T>(key: string): Promise<T | null>;
   set<T>(key: string, value: T): Promise<void>;
   delete(key: string): Promise<boolean>;
-  
+
   // Query operations (for tasks, agents, etc.)
   query<T>(collection: string, filter: QueryFilter): Promise<T[]>;
-  
+
   // Transaction support
   transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T>;
 }
@@ -218,7 +227,7 @@ Cron-based task execution.
 interface ScheduledJob {
   id: string;
   name: string;
-  cron: string;           // "*/15 * * * *"
+  cron: string; // "*/15 * * * *"
   agentId: string;
   action: "heartbeat" | "task" | "custom";
   payload?: unknown;
@@ -227,6 +236,7 @@ interface ScheduledJob {
 ```
 
 **Heartbeat system**:
+
 - Each agent has a configurable heartbeat interval (default: 15 min)
 - On heartbeat, agent checks: @mentions, assigned tasks, activity feed
 - If nothing to do, reports "HEARTBEAT_OK" and sleeps
@@ -280,29 +290,29 @@ interface PluginManifest {
   description: string;
   author: string;
   repository: string;
-  
+
   // What this plugin provides
   type: "channel" | "llm" | "storage" | "tool" | "ui" | "custom";
-  
+
   // Required permissions (Deno permissions)
   permissions: {
-    net?: string[];      // Domains: ["api.telegram.org"]
-    read?: string[];     // Paths: ["~/.squadrn/"]
+    net?: string[]; // Domains: ["api.telegram.org"]
+    read?: string[]; // Paths: ["~/.squadrn/"]
     write?: string[];
-    env?: string[];      // Env vars: ["TELEGRAM_BOT_TOKEN"]
-    run?: string[];      // Executables
+    env?: string[]; // Env vars: ["TELEGRAM_BOT_TOKEN"]
+    run?: string[]; // Executables
   };
-  
+
   // Minimum Squadrn version
   minCoreVersion: string;
 }
 
 interface Plugin {
   manifest: PluginManifest;
-  
+
   // Called when plugin is loaded
   register(core: PluginAPI): Promise<void>;
-  
+
   // Called when gateway is shutting down
   unregister?(): Promise<void>;
 }
@@ -315,20 +325,20 @@ interface PluginAPI {
     off(event: string, handler: EventHandler): void;
     emit(event: string, payload: unknown): void;
   };
-  
+
   // Storage (namespaced to plugin)
   storage: {
     get<T>(key: string): Promise<T | null>;
     set<T>(key: string, value: T): Promise<void>;
     delete(key: string): Promise<boolean>;
   };
-  
+
   // Config (read-only, plugin's section only)
   config: Record<string, unknown>;
-  
+
   // Logging
   log: Logger;
-  
+
   // Registration hooks based on plugin type
   registerChannel?(channel: ChannelProvider): void;
   registerLLM?(llm: LLMProvider): void;
@@ -340,16 +350,16 @@ interface PluginAPI {
 
 ```typescript
 interface ChannelProvider {
-  name: string;  // "telegram", "slack", etc.
-  
+  name: string; // "telegram", "slack", etc.
+
   // Initialize connection
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  
+
   // Message handling
   onMessage(handler: (msg: IncomingMessage) => void): void;
   sendMessage(msg: OutgoingMessage): Promise<void>;
-  
+
   // Optional: typing indicators, read receipts, etc.
   sendTyping?(chatId: string): Promise<void>;
 }
@@ -378,24 +388,24 @@ interface OutgoingMessage {
 
 ```typescript
 interface LLMProvider {
-  name: string;  // "claude", "openai", "ollama"
-  
+  name: string; // "claude", "openai", "ollama"
+
   // Core completion
   complete(request: CompletionRequest): Promise<CompletionResponse>;
-  
+
   // Streaming support
   stream?(request: CompletionRequest): AsyncIterable<StreamChunk>;
-  
+
   // Tool/function calling
   supportsTools: boolean;
   completeWithTools?(
     request: CompletionRequest,
-    tools: ToolDefinition[]
+    tools: ToolDefinition[],
   ): Promise<CompletionWithToolsResponse>;
 }
 
 interface CompletionRequest {
-  model?: string;  // Plugin can have default
+  model?: string; // Plugin can have default
   messages: Array<{
     role: "system" | "user" | "assistant";
     content: string;
@@ -429,6 +439,7 @@ mc-plugin-telegram/
 ```
 
 **manifest.json example**:
+
 ```json
 {
   "name": "@squadrn/channel-telegram",
@@ -446,20 +457,21 @@ mc-plugin-telegram/
 ```
 
 **mod.ts example**:
+
 ```typescript
-import { Plugin, PluginAPI, ChannelProvider } from "https://squadrn.dev/types/mod.ts";
+import { ChannelProvider, Plugin, PluginAPI } from "https://squadrn.dev/types/mod.ts";
 import manifest from "./manifest.json" with { type: "json" };
 import { TelegramClient } from "./src/client.ts";
 
 const plugin: Plugin = {
   manifest,
-  
+
   async register(core: PluginAPI) {
     const token = Deno.env.get("TELEGRAM_BOT_TOKEN");
     if (!token) throw new Error("TELEGRAM_BOT_TOKEN required");
-    
+
     const client = new TelegramClient(token, core.log);
-    
+
     const channel: ChannelProvider = {
       name: "telegram",
       connect: () => client.connect(),
@@ -468,14 +480,14 @@ const plugin: Plugin = {
       sendMessage: (msg) => client.send(msg),
       sendTyping: (chatId) => client.sendTyping(chatId),
     };
-    
+
     core.registerChannel!(channel);
     core.log.info("Telegram channel registered");
   },
-  
+
   async unregister() {
     // Cleanup
-  }
+  },
 };
 
 export default plugin;
@@ -494,17 +506,17 @@ interface Agent {
   name: string;
   role: string;
   status: "idle" | "active" | "blocked" | "offline";
-  
+
   // Configuration
-  llm: string;           // Plugin name
-  channels: string[];    // Plugin names
+  llm: string; // Plugin name
+  channels: string[]; // Plugin names
   heartbeatCron: string;
-  soulFile: string;      // Path to SOUL.md
-  
+  soulFile: string; // Path to SOUL.md
+
   // State
   currentTaskId?: string;
   currentSessionId?: string;
-  
+
   // Metadata
   createdAt: Date;
   updatedAt: Date;
@@ -517,24 +529,24 @@ interface Agent {
 interface Task {
   id: string;
   workspaceId: string;
-  
+
   title: string;
   description: string;
   status: "inbox" | "assigned" | "in_progress" | "review" | "done" | "blocked";
   priority: "low" | "medium" | "high" | "urgent";
-  
+
   // Assignment
-  assigneeIds: string[];  // Agent IDs
-  creatorId?: string;     // Agent or user ID
-  
+  assigneeIds: string[]; // Agent IDs
+  creatorId?: string; // Agent or user ID
+
   // Relationships
   parentTaskId?: string;
   dependsOn: string[];
-  
+
   // Activity
   comments: Comment[];
   attachments: Attachment[];
-  
+
   // Metadata
   tags: string[];
   dueDate?: Date;
@@ -546,10 +558,10 @@ interface Task {
 interface Comment {
   id: string;
   taskId: string;
-  authorId: string;      // Agent ID
+  authorId: string; // Agent ID
   authorName: string;
   content: string;
-  mentions: string[];    // Agent IDs mentioned with @
+  mentions: string[]; // Agent IDs mentioned with @
   createdAt: Date;
 }
 ```
@@ -560,9 +572,9 @@ interface Comment {
 interface Activity {
   id: string;
   workspaceId: string;
-  
-  type: 
-    | "task_created" 
+
+  type:
+    | "task_created"
     | "task_assigned"
     | "task_status_changed"
     | "task_commented"
@@ -571,15 +583,15 @@ interface Activity {
     | "agent_heartbeat"
     | "message_received"
     | "message_sent";
-  
-  actorId: string;       // Who did it
+
+  actorId: string; // Who did it
   actorType: "agent" | "user" | "system";
-  
+
   targetType: "task" | "agent" | "message";
   targetId: string;
-  
-  data: Record<string, unknown>;  // Event-specific data
-  
+
+  data: Record<string, unknown>; // Event-specific data
+
   createdAt: Date;
 }
 ```
@@ -590,19 +602,19 @@ interface Activity {
 interface Notification {
   id: string;
   workspaceId: string;
-  
-  recipientId: string;   // Agent ID
+
+  recipientId: string; // Agent ID
   type: "mention" | "assignment" | "comment" | "system";
-  
+
   content: string;
   sourceType: "task" | "message" | "system";
   sourceId?: string;
-  
+
   delivered: boolean;
   deliveredAt?: Date;
   read: boolean;
   readAt?: Date;
-  
+
   createdAt: Date;
 }
 ```
@@ -767,10 +779,10 @@ import { EventBus } from "./event_bus.ts";
 Deno.test("EventBus - emits events to subscribers", async () => {
   const bus = new EventBus();
   const received: string[] = [];
-  
+
   bus.on("test:event", (data) => received.push(data as string));
   await bus.emit("test:event", "hello");
-  
+
   assertEquals(received, ["hello"]);
 });
 ```
@@ -872,12 +884,14 @@ The full spec is in MISSION_CONTROL_SPEC.md
 ### Coding Requests
 
 Be specific about:
+
 1. Which component you're working on (CLI, core, plugin)
 2. Whether you need new code or modifications
 3. What interfaces/types already exist
 4. How it should integrate with existing code
 
 Example:
+
 ```
 Implement the EventBus class in core/event_bus.ts.
 
@@ -892,6 +906,7 @@ Requirements:
 ### Architecture Decisions
 
 When you need help with design decisions, frame it as:
+
 ```
 I need to decide how to [problem].
 
@@ -909,6 +924,7 @@ What do you recommend and why?
 ## 12. Roadmap
 
 ### Phase 1: Foundation (Weeks 1-2)
+
 - [ ] Project setup (Deno workspace, CI)
 - [ ] CLI skeleton with init, start, stop
 - [ ] Core gateway with event bus
@@ -916,6 +932,7 @@ What do you recommend and why?
 - [ ] SQLite storage adapter
 
 ### Phase 2: Plugin System (Weeks 3-4)
+
 - [ ] Type definitions published
 - [ ] Permission validation
 - [ ] Telegram channel plugin
@@ -923,6 +940,7 @@ What do you recommend and why?
 - [ ] Plugin add/remove commands
 
 ### Phase 3: Agents (Weeks 5-6)
+
 - [ ] Agent configuration
 - [ ] SOUL.md loading
 - [ ] Session management
@@ -930,6 +948,7 @@ What do you recommend and why?
 - [ ] Basic agent execution
 
 ### Phase 4: Polish (Weeks 7-8)
+
 - [ ] Error handling and recovery
 - [ ] Logging and observability
 - [ ] Documentation
@@ -943,6 +962,7 @@ What do you recommend and why?
 **Final name**: Squadrn (pronounced "squadron")
 
 **Assets to create**:
+
 - Logo (simple, geometric, evokes coordination/teamwork)
 - Domain: squadrn.dev
 - GitHub org: github.com/squadrn (available)
@@ -952,16 +972,16 @@ What do you recommend and why?
 
 ## Appendix B: Competitive Landscape
 
-| Project | Overlap | Differentiation |
-|---------|---------|-----------------|
-| OpenClaw | Agent runtime | MC is orchestration layer, could use OpenClaw as plugin |
-| CrewAI | Multi-agent | MC is infrastructure, CrewAI is framework |
-| AutoGen | Multi-agent | MC focuses on persistent agents, not conversations |
-| LangGraph | Workflows | MC is higher-level, graph-agnostic |
+| Project   | Overlap       | Differentiation                                         |
+| --------- | ------------- | ------------------------------------------------------- |
+| OpenClaw  | Agent runtime | MC is orchestration layer, could use OpenClaw as plugin |
+| CrewAI    | Multi-agent   | MC is infrastructure, CrewAI is framework               |
+| AutoGen   | Multi-agent   | MC focuses on persistent agents, not conversations      |
+| LangGraph | Workflows     | MC is higher-level, graph-agnostic                      |
 
-**Positioning**: Squadrn is the "Kubernetes for AI agents" - it doesn't run the agents, it orchestrates them.
+**Positioning**: Squadrn is the "Kubernetes for AI agents" - it doesn't run the agents, it
+orchestrates them.
 
 ---
 
-*Document version: 1.0.0*
-*Last updated: 2026-02-01*
+_Document version: 1.0.0_ _Last updated: 2026-02-01_

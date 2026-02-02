@@ -26,9 +26,16 @@ export interface CreateNotificationData {
 // Errors
 // ---------------------------------------------------------------------------
 
-export class NotificationNotFoundError extends Error {
-  constructor(public readonly notificationId: string) {
-    super(`Notification not found: ${notificationId}`);
+import { NotificationError } from "./errors.ts";
+
+export class NotificationNotFoundError extends NotificationError {
+  readonly notificationId: string;
+
+  constructor(notificationId: string) {
+    super("NOTIFICATION_NOT_FOUND", `Notification not found: ${notificationId}`, {
+      context: { notificationId },
+    });
+    this.notificationId = notificationId;
   }
 }
 
@@ -115,7 +122,9 @@ export class NotificationManager {
     const all = await this.#storage.query<Notification>(COLLECTION, {});
     let deleted = 0;
     for (const n of all) {
-      const createdMs = n.createdAt instanceof Date ? n.createdAt.getTime() : new Date(n.createdAt).getTime();
+      const createdMs = n.createdAt instanceof Date
+        ? n.createdAt.getTime()
+        : new Date(n.createdAt).getTime();
       if (createdMs < cutoff) {
         await this.#storage.delete(`${COLLECTION}:${n.id}`);
         deleted++;

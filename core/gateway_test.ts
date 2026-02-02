@@ -2,7 +2,7 @@ import { assertEquals, assertRejects } from "jsr:@std/assert";
 import { join } from "jsr:@std/path";
 import { Gateway } from "./gateway.ts";
 import { GatewayClient } from "./gateway_client.ts";
-import { serializeConfig, defaultConfig } from "./config_manager.ts";
+import { defaultConfig, serializeConfig } from "./config_manager.ts";
 
 const SANITIZE = { sanitizeOps: false, sanitizeResources: false };
 
@@ -27,43 +27,55 @@ async function setupGateway(dir: string) {
   return { configPath, socketPath, dbPath };
 }
 
-Deno.test({ name: "Gateway - start and stop lifecycle", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath } = await setupGateway(dir);
-    const gw = new Gateway({ gracePeriodMs: 100 });
+Deno.test({
+  name: "Gateway - start and stop lifecycle",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath } = await setupGateway(dir);
+      const gw = new Gateway({ gracePeriodMs: 100 });
 
-    const events: string[] = [];
-    gw.events.on("gateway:started", () => { events.push("started"); });
-    gw.events.on("gateway:stopping", () => { events.push("stopping"); });
+      const events: string[] = [];
+      gw.events.on("gateway:started", () => {
+        events.push("started");
+      });
+      gw.events.on("gateway:stopping", () => {
+        events.push("stopping");
+      });
 
-    assertEquals(gw.isRunning, false);
+      assertEquals(gw.isRunning, false);
 
-    await gw.start(configPath, socketPath);
-    assertEquals(gw.isRunning, true);
-    assertEquals(events, ["started"]);
+      await gw.start(configPath, socketPath);
+      assertEquals(gw.isRunning, true);
+      assertEquals(events, ["started"]);
 
-    await gw.stop();
-    assertEquals(gw.isRunning, false);
-    assertEquals(events, ["started", "stopping"]);
-  });
-}});
+      await gw.stop();
+      assertEquals(gw.isRunning, false);
+      assertEquals(events, ["started", "stopping"]);
+    });
+  },
+});
 
-Deno.test({ name: "Gateway - double start throws", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath } = await setupGateway(dir);
-    const gw = new Gateway({ gracePeriodMs: 100 });
+Deno.test({
+  name: "Gateway - double start throws",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath } = await setupGateway(dir);
+      const gw = new Gateway({ gracePeriodMs: 100 });
 
-    await gw.start(configPath, socketPath);
+      await gw.start(configPath, socketPath);
 
-    await assertRejects(
-      () => gw.start(configPath, socketPath),
-      Error,
-      "already running",
-    );
+      await assertRejects(
+        () => gw.start(configPath, socketPath),
+        Error,
+        "already running",
+      );
 
-    await gw.stop();
-  });
-}});
+      await gw.stop();
+    });
+  },
+});
 
 Deno.test("Gateway - stop when not running is a no-op", async () => {
   const gw = new Gateway();
@@ -71,37 +83,45 @@ Deno.test("Gateway - stop when not running is a no-op", async () => {
   assertEquals(gw.isRunning, false);
 });
 
-Deno.test({ name: "Gateway - status returns snapshot", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath } = await setupGateway(dir);
-    const gw = new Gateway({ gracePeriodMs: 100 });
+Deno.test({
+  name: "Gateway - status returns snapshot",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath } = await setupGateway(dir);
+      const gw = new Gateway({ gracePeriodMs: 100 });
 
-    await gw.start(configPath, socketPath);
+      await gw.start(configPath, socketPath);
 
-    const status = gw.status();
-    assertEquals(status.running, true);
-    assertEquals(status.pid, Deno.pid);
-    assertEquals(typeof status.uptime, "number");
-    assertEquals(Array.isArray(status.plugins), true);
+      const status = gw.status();
+      assertEquals(status.running, true);
+      assertEquals(status.pid, Deno.pid);
+      assertEquals(typeof status.uptime, "number");
+      assertEquals(Array.isArray(status.plugins), true);
 
-    await gw.stop();
-  });
-}});
+      await gw.stop();
+    });
+  },
+});
 
-Deno.test({ name: "Gateway - handleCommand status", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath } = await setupGateway(dir);
-    const gw = new Gateway({ gracePeriodMs: 100 });
+Deno.test({
+  name: "Gateway - handleCommand status",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath } = await setupGateway(dir);
+      const gw = new Gateway({ gracePeriodMs: 100 });
 
-    await gw.start(configPath, socketPath);
+      await gw.start(configPath, socketPath);
 
-    const resp = await gw.handleCommand({ action: "status" });
-    assertEquals(resp.ok, true);
-    assertEquals((resp.data as Record<string, unknown>)["running"], true);
+      const resp = await gw.handleCommand({ action: "status" });
+      assertEquals(resp.ok, true);
+      assertEquals((resp.data as Record<string, unknown>)["running"], true);
 
-    await gw.stop();
-  });
-}});
+      await gw.stop();
+    });
+  },
+});
 
 Deno.test("Gateway - handleCommand unknown action", async () => {
   const gw = new Gateway();
@@ -110,79 +130,95 @@ Deno.test("Gateway - handleCommand unknown action", async () => {
   assertEquals(typeof resp.error, "string");
 });
 
-Deno.test({ name: "Gateway - graceful shutdown waits for handlers", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath } = await setupGateway(dir);
-    const gw = new Gateway({ gracePeriodMs: 2000 });
+Deno.test({
+  name: "Gateway - graceful shutdown waits for handlers",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath } = await setupGateway(dir);
+      const gw = new Gateway({ gracePeriodMs: 2000 });
 
-    let handlerFinished = false;
-    gw.events.on("gateway:stopping", async () => {
+      let handlerFinished = false;
+      gw.events.on("gateway:stopping", async () => {
+        await new Promise((r) => setTimeout(r, 50));
+        handlerFinished = true;
+      });
+
+      await gw.start(configPath, socketPath);
+      await gw.stop();
+
+      assertEquals(handlerFinished, true);
+    });
+  },
+});
+
+Deno.test({
+  name: "Gateway - grace period caps slow handlers",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath } = await setupGateway(dir);
+      const gw = new Gateway({ gracePeriodMs: 50 });
+
+      let handlerFinished = false;
+      gw.events.on("gateway:stopping", async () => {
+        await new Promise((r) => setTimeout(r, 5000));
+        handlerFinished = true;
+      });
+
+      await gw.start(configPath, socketPath);
+      const start = performance.now();
+      await gw.stop();
+      const elapsed = performance.now() - start;
+
+      assertEquals(handlerFinished, false);
+      assertEquals(elapsed < 1000, true);
+    });
+  },
+});
+
+Deno.test({
+  name: "Gateway - socket accepts status command via client",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath } = await setupGateway(dir);
+      const gw = new Gateway({ gracePeriodMs: 100 });
+
+      await gw.start(configPath, socketPath);
       await new Promise((r) => setTimeout(r, 50));
-      handlerFinished = true;
+
+      const client = new GatewayClient(socketPath);
+      const resp = await client.status();
+      assertEquals(resp.ok, true);
+      assertEquals((resp.data as Record<string, unknown>)["running"], true);
+
+      await gw.stop();
     });
+  },
+});
 
-    await gw.start(configPath, socketPath);
-    await gw.stop();
+Deno.test({
+  name: "Gateway - socket accepts stop command via client",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath } = await setupGateway(dir);
+      const gw = new Gateway({ gracePeriodMs: 100 });
 
-    assertEquals(handlerFinished, true);
-  });
-}});
+      await gw.start(configPath, socketPath);
+      await new Promise((r) => setTimeout(r, 50));
 
-Deno.test({ name: "Gateway - grace period caps slow handlers", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath } = await setupGateway(dir);
-    const gw = new Gateway({ gracePeriodMs: 50 });
+      const client = new GatewayClient(socketPath);
+      const resp = await client.stop();
+      assertEquals(resp.ok, true);
 
-    let handlerFinished = false;
-    gw.events.on("gateway:stopping", async () => {
-      await new Promise((r) => setTimeout(r, 5000));
-      handlerFinished = true;
+      // Wait for async stop
+      await new Promise((r) => setTimeout(r, 300));
+      assertEquals(gw.isRunning, false);
     });
-
-    await gw.start(configPath, socketPath);
-    const start = performance.now();
-    await gw.stop();
-    const elapsed = performance.now() - start;
-
-    assertEquals(handlerFinished, false);
-    assertEquals(elapsed < 1000, true);
-  });
-}});
-
-Deno.test({ name: "Gateway - socket accepts status command via client", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath } = await setupGateway(dir);
-    const gw = new Gateway({ gracePeriodMs: 100 });
-
-    await gw.start(configPath, socketPath);
-    await new Promise((r) => setTimeout(r, 50));
-
-    const client = new GatewayClient(socketPath);
-    const resp = await client.status();
-    assertEquals(resp.ok, true);
-    assertEquals((resp.data as Record<string, unknown>)["running"], true);
-
-    await gw.stop();
-  });
-}});
-
-Deno.test({ name: "Gateway - socket accepts stop command via client", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath } = await setupGateway(dir);
-    const gw = new Gateway({ gracePeriodMs: 100 });
-
-    await gw.start(configPath, socketPath);
-    await new Promise((r) => setTimeout(r, 50));
-
-    const client = new GatewayClient(socketPath);
-    const resp = await client.stop();
-    assertEquals(resp.ok, true);
-
-    // Wait for async stop
-    await new Promise((r) => setTimeout(r, 300));
-    assertEquals(gw.isRunning, false);
-  });
-}});
+  },
+});
 
 Deno.test("GatewayClient - connection to non-existent socket returns error", async () => {
   const client = new GatewayClient("/tmp/nonexistent-squadrn-test.sock");
@@ -191,19 +227,23 @@ Deno.test("GatewayClient - connection to non-existent socket returns error", asy
   assertEquals(typeof resp.error, "string");
 });
 
-Deno.test({ name: "Gateway - socket cleans up on stop", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath } = await setupGateway(dir);
-    const gw = new Gateway({ gracePeriodMs: 100 });
+Deno.test({
+  name: "Gateway - socket cleans up on stop",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath } = await setupGateway(dir);
+      const gw = new Gateway({ gracePeriodMs: 100 });
 
-    await gw.start(configPath, socketPath);
+      await gw.start(configPath, socketPath);
 
-    const stat = await Deno.stat(socketPath).catch(() => null);
-    assertEquals(stat !== null, true);
+      const stat = await Deno.stat(socketPath).catch(() => null);
+      assertEquals(stat !== null, true);
 
-    await gw.stop();
+      await gw.stop();
 
-    const statAfter = await Deno.stat(socketPath).catch(() => null);
-    assertEquals(statAfter, null);
-  });
-}});
+      const statAfter = await Deno.stat(socketPath).catch(() => null);
+      assertEquals(statAfter, null);
+    });
+  },
+});

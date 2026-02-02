@@ -252,7 +252,9 @@ async function agentList(): Promise<void> {
   const heartW = 18;
 
   console.log(
-    `  ${bold(pad("NAME", nameW))} ${bold(pad("ROLE", roleW))} ${bold(pad("STATUS", statusW))} ${bold(pad("LLM", llmW))} ${bold(pad("HEARTBEAT", heartW))}`,
+    `  ${bold(pad("NAME", nameW))} ${bold(pad("ROLE", roleW))} ${bold(pad("STATUS", statusW))} ${
+      bold(pad("LLM", llmW))
+    } ${bold(pad("HEARTBEAT", heartW))}`,
   );
   console.log(`  ${dim("-".repeat(nameW + roleW + statusW + llmW + heartW + 4))}`);
 
@@ -267,7 +269,9 @@ async function agentList(): Promise<void> {
       : red;
 
     console.log(
-      `  ${pad(key, nameW)} ${pad(agent.role, roleW)} ${statusColor(pad(status, statusW))} ${pad(agent.llm, llmW)} ${dim(pad(agent.heartbeat, heartW))}`,
+      `  ${pad(key, nameW)} ${pad(agent.role, roleW)} ${statusColor(pad(status, statusW))} ${
+        pad(agent.llm, llmW)
+      } ${dim(pad(agent.heartbeat, heartW))}`,
     );
   }
 

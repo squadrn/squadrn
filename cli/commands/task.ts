@@ -525,7 +525,7 @@ async function taskStatus(
       );
     } catch (err) {
       if (err instanceof InvalidTransitionError) {
-        out.error(err.message);
+        out.displayError(err);
       } else {
         throw err;
       }

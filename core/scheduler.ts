@@ -94,15 +94,27 @@ export function nextCronDate(expr: string, after: Date = new Date()): Date {
 // Errors
 // ---------------------------------------------------------------------------
 
-export class CronParseError extends Error {
-  constructor(public readonly expression: string, reason: string) {
-    super(`Invalid cron expression "${expression}": ${reason}`);
+import { SchedulerError } from "./errors.ts";
+
+export class CronParseError extends SchedulerError {
+  readonly expression: string;
+
+  constructor(expression: string, reason: string) {
+    super("SCHEDULER_CRON_INVALID", `Invalid cron expression "${expression}": ${reason}`, {
+      context: { expression },
+    });
+    this.expression = expression;
   }
 }
 
-export class JobNotFoundError extends Error {
-  constructor(public readonly jobId: string) {
-    super(`Scheduled job not found: ${jobId}`);
+export class JobNotFoundError extends SchedulerError {
+  readonly jobId: string;
+
+  constructor(jobId: string) {
+    super("SCHEDULER_JOB_NOT_FOUND", `Scheduled job not found: ${jobId}`, {
+      context: { jobId },
+    });
+    this.jobId = jobId;
   }
 }
 

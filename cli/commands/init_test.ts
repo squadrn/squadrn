@@ -1,6 +1,6 @@
 import { assertEquals } from "jsr:@std/assert";
 import { join } from "jsr:@std/path";
-import { defaultConfig, serializeConfig, loadConfig } from "@squadrn/core";
+import { defaultConfig, loadConfig, serializeConfig } from "@squadrn/core";
 
 async function withTempDir(fn: (dir: string) => Promise<void>): Promise<void> {
   const dir = await Deno.makeTempDir();

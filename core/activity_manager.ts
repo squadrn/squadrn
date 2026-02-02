@@ -1,9 +1,4 @@
-import type {
-  Activity,
-  ActivityType,
-  StorageAdapter,
-  WorkspaceId,
-} from "@squadrn/types";
+import type { Activity, ActivityType, StorageAdapter, WorkspaceId } from "@squadrn/types";
 import { createActivityId } from "@squadrn/types";
 import type { EventBus } from "./event_bus.ts";
 import type { EventName } from "@squadrn/types";
@@ -216,8 +211,12 @@ export class ActivityManager {
 
     // Sort newest first
     results.sort((a, b) => {
-      const ta = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
-      const tb = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+      const ta = a.createdAt instanceof Date
+        ? a.createdAt.getTime()
+        : new Date(a.createdAt).getTime();
+      const tb = b.createdAt instanceof Date
+        ? b.createdAt.getTime()
+        : new Date(b.createdAt).getTime();
       return tb - ta;
     });
 
@@ -239,11 +238,17 @@ export class ActivityManager {
     const sinceMs = since.getTime();
     const all = await this.#storage.query<Activity>(COLLECTION, {});
     return all.filter((a) => {
-      const ms = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+      const ms = a.createdAt instanceof Date
+        ? a.createdAt.getTime()
+        : new Date(a.createdAt).getTime();
       return ms >= sinceMs;
     }).sort((a, b) => {
-      const ta = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
-      const tb = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+      const ta = a.createdAt instanceof Date
+        ? a.createdAt.getTime()
+        : new Date(a.createdAt).getTime();
+      const tb = b.createdAt instanceof Date
+        ? b.createdAt.getTime()
+        : new Date(b.createdAt).getTime();
       return tb - ta;
     });
   }
@@ -286,9 +291,13 @@ export class ActivityManager {
 
     switch (activity.type) {
       case "task_created":
-        return `${actor} created task ${target}${activity.data["title"] ? `: "${activity.data["title"]}"` : ""}`;
+        return `${actor} created task ${target}${
+          activity.data["title"] ? `: "${activity.data["title"]}"` : ""
+        }`;
       case "task_assigned":
-        return `${actor} assigned task ${target} to ${formatList(activity.data["agentIds"] as string[] | undefined)}`;
+        return `${actor} assigned task ${target} to ${
+          formatList(activity.data["agentIds"] as string[] | undefined)
+        }`;
       case "task_status_changed":
         return `Task ${target} moved from ${activity.data["from"]} to ${activity.data["to"]}`;
       case "task_commented":
@@ -300,11 +309,17 @@ export class ActivityManager {
       case "agent_heartbeat":
         return `Agent ${target} heartbeat`;
       case "message_received":
-        return `Message received from ${actor}${activity.data["channelName"] ? ` via ${activity.data["channelName"]}` : ""}`;
+        return `Message received from ${actor}${
+          activity.data["channelName"] ? ` via ${activity.data["channelName"]}` : ""
+        }`;
       case "message_sent":
-        return `${actor} sent a message${activity.data["chatId"] ? ` to ${activity.data["chatId"]}` : ""}`;
+        return `${actor} sent a message${
+          activity.data["chatId"] ? ` to ${activity.data["chatId"]}` : ""
+        }`;
       case "plugin_loaded":
-        return `Plugin ${target} loaded${activity.data["version"] ? ` (v${activity.data["version"]})` : ""}`;
+        return `Plugin ${target} loaded${
+          activity.data["version"] ? ` (v${activity.data["version"]})` : ""
+        }`;
       case "plugin_error":
         return `Plugin ${target} error: ${activity.data["error"] ?? "unknown"}`;
     }

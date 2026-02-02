@@ -44,7 +44,9 @@ function makeStorage(): StorageAdapter {
     async transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {
       const tx: Transaction = {
         get: async <U>(key: string) => (store.get(key) as U) ?? null,
-        set: async <U>(key: string, value: U) => { store.set(key, value); },
+        set: async <U>(key: string, value: U) => {
+          store.set(key, value);
+        },
         delete: async (key: string) => store.delete(key),
       };
       return fn(tx);
@@ -130,7 +132,9 @@ Deno.test("create - creates notification with defaults", async () => {
 Deno.test("create - emits notification:created", async () => {
   const { mgr, events } = setup();
   const emitted: unknown[] = [];
-  events.on("notification:created", (payload) => { emitted.push(payload); });
+  events.on("notification:created", (payload) => {
+    emitted.push(payload);
+  });
 
   await mgr.create({
     recipientId: "agent-1",
@@ -158,7 +162,12 @@ Deno.test("getForAgent - returns only matching agent", async () => {
 
 Deno.test("getForAgent - unreadOnly filters read notifications", async () => {
   const { mgr } = setup();
-  const n1 = await mgr.create({ recipientId: "a1", type: "mention", content: "x", sourceType: "task" });
+  const n1 = await mgr.create({
+    recipientId: "a1",
+    type: "mention",
+    content: "x",
+    sourceType: "task",
+  });
   await mgr.create({ recipientId: "a1", type: "mention", content: "y", sourceType: "task" });
   await mgr.markRead(n1.id);
 
@@ -172,7 +181,12 @@ Deno.test("getForAgent - unreadOnly filters read notifications", async () => {
 
 Deno.test("markDelivered - sets delivered flag and timestamp", async () => {
   const { mgr } = setup();
-  const n = await mgr.create({ recipientId: "a1", type: "system", content: "x", sourceType: "system" });
+  const n = await mgr.create({
+    recipientId: "a1",
+    type: "system",
+    content: "x",
+    sourceType: "system",
+  });
   await mgr.markDelivered(n.id);
 
   const all = await mgr.getForAgent("a1");
@@ -182,7 +196,12 @@ Deno.test("markDelivered - sets delivered flag and timestamp", async () => {
 
 Deno.test("markRead - sets read flag and timestamp", async () => {
   const { mgr } = setup();
-  const n = await mgr.create({ recipientId: "a1", type: "system", content: "x", sourceType: "system" });
+  const n = await mgr.create({
+    recipientId: "a1",
+    type: "system",
+    content: "x",
+    sourceType: "system",
+  });
   await mgr.markRead(n.id);
 
   const all = await mgr.getForAgent("a1");
@@ -204,7 +223,12 @@ Deno.test("markDelivered - throws for missing notification", async () => {
 Deno.test("deleteOld - removes notifications older than maxAge", async () => {
   const { mgr, storage } = setup();
   // Create a notification, then backdate it
-  const n = await mgr.create({ recipientId: "a1", type: "system", content: "old", sourceType: "system" });
+  const n = await mgr.create({
+    recipientId: "a1",
+    type: "system",
+    content: "old",
+    sourceType: "system",
+  });
   const oldDate = new Date(Date.now() - 100_000);
   const stored = await storage.get<Notification>(`notifications:${n.id}`);
   if (stored) {
@@ -280,9 +304,9 @@ Deno.test("notifySubscribers - notifies subscribers except author and mentioned"
 
   const notifications = await mgr.notifySubscribers(
     "task-1",
-    "a1",        // author - skip
+    "a1", // author - skip
     "New comment",
-    ["a3"],      // already mentioned - skip
+    ["a3"], // already mentioned - skip
   );
 
   assertEquals(notifications.length, 1);

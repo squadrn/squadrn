@@ -1,6 +1,6 @@
 import { ensureDir } from "@std/fs";
 import { join } from "@std/path";
-import { Input, Select, Confirm } from "@cliffy/prompt";
+import { Confirm, Input, Select } from "@cliffy/prompt";
 import { defaultConfig, serializeConfig } from "@squadrn/core";
 import { AGENTS_DIR, CONFIG_PATH, DATA_DIR, PLUGINS_PATH, SQUADRN_DIR } from "../utils/paths.ts";
 import * as out from "../utils/output.ts";
@@ -109,8 +109,16 @@ export async function initCommand(): Promise<void> {
     out.info(`1. Install the LLM plugin: squadrn plugin add @squadrn/llm-${llm}`);
   }
   if (channel !== "none") {
-    out.info(`${llm !== "none" ? "2" : "1"}. Install the channel plugin: squadrn plugin add @squadrn/channel-${channel}`);
+    out.info(
+      `${
+        llm !== "none" ? "2" : "1"
+      }. Install the channel plugin: squadrn plugin add @squadrn/channel-${channel}`,
+    );
   }
-  out.info(`${llm !== "none" && channel !== "none" ? "3" : llm !== "none" || channel !== "none" ? "2" : "1"}. Edit config: ${CONFIG_PATH}`);
+  out.info(
+    `${
+      llm !== "none" && channel !== "none" ? "3" : llm !== "none" || channel !== "none" ? "2" : "1"
+    }. Edit config: ${CONFIG_PATH}`,
+  );
   out.info("Then run: squadrn start");
 }

@@ -1,11 +1,4 @@
-import type {
-  AgentId,
-  Comment,
-  StorageAdapter,
-  Task,
-  TaskId,
-  WorkspaceId,
-} from "@squadrn/types";
+import type { AgentId, Comment, StorageAdapter, Task, TaskId, WorkspaceId } from "@squadrn/types";
 import { createCommentId, createTaskId } from "@squadrn/types";
 import type { EventBus } from "./event_bus.ts";
 
@@ -58,19 +51,29 @@ const VALID_TRANSITIONS: Record<Task["status"], Task["status"][]> = {
 // Errors
 // ---------------------------------------------------------------------------
 
-export class TaskNotFoundError extends Error {
-  constructor(public readonly taskId: string) {
-    super(`Task not found: ${taskId}`);
+import { TaskError } from "./errors.ts";
+
+export class TaskNotFoundError extends TaskError {
+  constructor(taskId: string) {
+    super(taskId, "TASK_NOT_FOUND", `Task not found: ${taskId}`);
   }
 }
 
-export class InvalidTransitionError extends Error {
-  constructor(
-    public readonly taskId: string,
-    public readonly from: Task["status"],
-    public readonly to: Task["status"],
-  ) {
-    super(`Invalid transition for task "${taskId}": ${from} → ${to}`);
+export class InvalidTransitionError extends TaskError {
+  readonly from: Task["status"];
+  readonly to: Task["status"];
+
+  constructor(taskId: string, from: Task["status"], to: Task["status"]) {
+    super(
+      taskId,
+      "TASK_INVALID_TRANSITION",
+      `Invalid transition for task "${taskId}": ${from} → ${to}`,
+      {
+        context: { from, to },
+      },
+    );
+    this.from = from;
+    this.to = to;
   }
 }
 
@@ -120,7 +123,9 @@ export class TaskManager {
 
   async updateTask(
     taskId: TaskId,
-    updates: Partial<Pick<Task, "title" | "description" | "priority" | "tags" | "dueDate" | "dependsOn">>,
+    updates: Partial<
+      Pick<Task, "title" | "description" | "priority" | "tags" | "dueDate" | "dependsOn">
+    >,
   ): Promise<Task> {
     const task = await this.#requireTask(taskId);
     const updated: Task = {
@@ -207,7 +212,11 @@ export class TaskManager {
     task.comments.push(comment);
     task.updatedAt = new Date();
     await this.#persist(task);
-    await this.#events.emit("task:commented", { taskId, commentId: comment.id, mentions: comment.mentions });
+    await this.#events.emit("task:commented", {
+      taskId,
+      commentId: comment.id,
+      mentions: comment.mentions,
+    });
     return comment;
   }
 

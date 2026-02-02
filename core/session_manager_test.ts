@@ -78,7 +78,9 @@ Deno.test("createSession returns a new session", async () => {
 Deno.test("createSession emits session:created event", async () => {
   const { manager, events } = setup();
   const emitted: unknown[] = [];
-  events.on("session:created", (data) => { emitted.push(data); });
+  events.on("session:created", (data) => {
+    emitted.push(data);
+  });
 
   const session = await manager.createSession(AGENT_ID);
 
@@ -106,7 +108,9 @@ Deno.test("updateSession changes status and emits event", async () => {
   const { manager, events } = setup();
   const session = await manager.createSession(AGENT_ID);
   const emitted: unknown[] = [];
-  events.on("session:updated", (data) => { emitted.push(data); });
+  events.on("session:updated", (data) => {
+    emitted.push(data);
+  });
 
   await manager.updateSession(session.id, { status: "active" });
 
@@ -129,7 +133,9 @@ Deno.test("endSession sets status to idle and emits event", async () => {
   await manager.updateSession(session.id, { status: "active" });
 
   const emitted: unknown[] = [];
-  events.on("session:ended", (data) => { emitted.push(data); });
+  events.on("session:ended", (data) => {
+    emitted.push(data);
+  });
 
   await manager.endSession(session.id);
 

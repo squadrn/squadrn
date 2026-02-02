@@ -80,7 +80,7 @@ async function pluginAdd(url: string | undefined): Promise<void> {
     validateManifest(json);
     manifest = json;
   } catch (err) {
-    out.error(`Invalid manifest: ${(err as Error).message}`);
+    out.displayError(err);
     return;
   }
 
@@ -236,7 +236,9 @@ async function pluginList(): Promise<void> {
   const statusW = 10;
 
   console.log(
-    `  ${bold(pad("NAME", nameW))} ${bold(pad("VERSION", verW))} ${bold(pad("TYPE", typeW))} ${bold(pad("STATUS", statusW))}`,
+    `  ${bold(pad("NAME", nameW))} ${bold(pad("VERSION", verW))} ${bold(pad("TYPE", typeW))} ${
+      bold(pad("STATUS", statusW))
+    }`,
   );
   console.log(`  ${dim("-".repeat(nameW + verW + typeW + statusW + 3))}`);
 
@@ -248,7 +250,9 @@ async function pluginList(): Promise<void> {
       : yellow("not loaded");
 
     console.log(
-      `  ${pad(name, nameW)} ${pad(entry.manifest.version, verW)} ${pad(entry.manifest.type, typeW)} ${status}`,
+      `  ${pad(name, nameW)} ${pad(entry.manifest.version, verW)} ${
+        pad(entry.manifest.type, typeW)
+      } ${status}`,
     );
   }
 

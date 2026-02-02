@@ -1,8 +1,14 @@
 import { assertEquals, assertThrows } from "jsr:@std/assert";
-import { Scheduler, parseCron, nextCronDate, CronParseError, JobNotFoundError } from "./scheduler.ts";
+import {
+  CronParseError,
+  JobNotFoundError,
+  nextCronDate,
+  parseCron,
+  Scheduler,
+} from "./scheduler.ts";
 import type { ScheduledJob } from "./scheduler.ts";
 import { EventBus } from "./event_bus.ts";
-import type { StorageAdapter, QueryFilter, Transaction } from "@squadrn/types";
+import type { QueryFilter, StorageAdapter, Transaction } from "@squadrn/types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -30,7 +36,9 @@ function makeStorage(): StorageAdapter {
     async transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {
       const tx: Transaction = {
         get: async <U>(key: string) => (store.get(key) as U) ?? null,
-        set: async <U>(key: string, value: U) => { store.set(key, value); },
+        set: async <U>(key: string, value: U) => {
+          store.set(key, value);
+        },
         delete: async (key: string) => store.delete(key),
       };
       return fn(tx);

@@ -1,10 +1,13 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this
+repository.
 
 ## Project
 
-Squadrn is a plugin-based orchestration layer for AI agent teams built on Deno 2.x with strict TypeScript. It orchestrates persistent AI agents — it doesn't run them (LLMs are plugins). Channels (Telegram, Slack) are also plugins. The full specification lives in `docs/SQUADRN_SPEC.md`.
+Squadrn is a plugin-based orchestration layer for AI agent teams built on Deno 2.x with strict
+TypeScript. It orchestrates persistent AI agents — it doesn't run them (LLMs are plugins). Channels
+(Telegram, Slack) are also plugins. The full specification lives in `docs/SQUADRN_SPEC.md`.
 
 ## Commands
 
@@ -26,26 +29,39 @@ deno run --allow-all cli/mod.ts status
 
 Three workspace modules (`types`, `core`, `cli`) configured in the root `deno.json`:
 
-- **`types/`** (`@squadrn/types`) — Shared interfaces consumed by core, CLI, and external plugins. Branded ID types (`AgentId`, `TaskId`, etc.) prevent mixing identifiers. Published as the plugin contract (plugins import from this).
-- **`core/`** (`@squadrn/core`) — Gateway daemon engine. `Gateway` orchestrates startup: loads TOML config → initializes SQLite storage → emits lifecycle events via `EventBus`. Storage uses a key-value table with a `collection` column for namespace queries (e.g., `"agents:xyz"`).
-- **`cli/`** (`@squadrn/cli`) — Entry point (`mod.ts`) parses args and routes to command handlers in `commands/`. Gateway lifecycle is managed via PID file at `~/.squadrn/gateway.pid`.
+- **`types/`** (`@squadrn/types`) — Shared interfaces consumed by core, CLI, and external plugins.
+  Branded ID types (`AgentId`, `TaskId`, etc.) prevent mixing identifiers. Published as the plugin
+  contract (plugins import from this).
+- **`core/`** (`@squadrn/core`) — Gateway daemon engine. `Gateway` orchestrates startup: loads TOML
+  config → initializes SQLite storage → emits lifecycle events via `EventBus`. Storage uses a
+  key-value table with a `collection` column for namespace queries (e.g., `"agents:xyz"`).
+- **`cli/`** (`@squadrn/cli`) — Entry point (`mod.ts`) parses args and routes to command handlers in
+  `commands/`. Gateway lifecycle is managed via PID file at `~/.squadrn/gateway.pid`.
 
 ### Gateway internals
 
 The gateway is a long-running daemon with these core components:
 
-- **EventBus** — In-memory pub/sub. Events are typed (`EventName` union). Handlers for the same event run in parallel; one handler's error doesn't block others.
-- **PluginLoader** — Fetches plugin from GitHub URL, validates manifest permissions, loads via Deno URL imports, calls `plugin.register(core)` with sandboxed API.
-- **SessionManager** — Maintains per-agent state: conversation history, working memory, current task.
-- **Scheduler** — Cron-based. Each agent has a heartbeat (default `*/15 * * * *`). On heartbeat, agents check mentions, assigned tasks, activity feed.
+- **EventBus** — In-memory pub/sub. Events are typed (`EventName` union). Handlers for the same
+  event run in parallel; one handler's error doesn't block others.
+- **PluginLoader** — Fetches plugin from GitHub URL, validates manifest permissions, loads via Deno
+  URL imports, calls `plugin.register(core)` with sandboxed API.
+- **SessionManager** — Maintains per-agent state: conversation history, working memory, current
+  task.
+- **Scheduler** — Cron-based. Each agent has a heartbeat (default `*/15 * * * *`). On heartbeat,
+  agents check mentions, assigned tasks, activity feed.
 - **ConfigManager** — Loads/validates `~/.squadrn/config.toml`. Merges with defaults.
 - **StorageAdapter** — Interface with SQLite default. Swappable for Postgres, etc.
 
 ### Plugin system
 
-Plugins have a `type`: `channel`, `llm`, `storage`, `tool`, `ui`, or `custom`. Each declares required Deno permissions in its manifest. Plugins receive a sandboxed `PluginAPI` with namespaced storage, event access, read-only config, and a logger. Type-specific hooks: `registerChannel()`, `registerLLM()`.
+Plugins have a `type`: `channel`, `llm`, `storage`, `tool`, `ui`, or `custom`. Each declares
+required Deno permissions in its manifest. Plugins receive a sandboxed `PluginAPI` with namespaced
+storage, event access, read-only config, and a logger. Type-specific hooks: `registerChannel()`,
+`registerLLM()`.
 
-Plugin directory convention: `mc-plugin-<name>/` with `mod.ts` (entry), `manifest.json` (metadata), and `src/`.
+Plugin directory convention: `mc-plugin-<name>/` with `mod.ts` (entry), `manifest.json` (metadata),
+and `src/`.
 
 ### Message flow
 
@@ -61,7 +77,10 @@ Channel plugin (e.g., Telegram) receives message
 
 ### Data model
 
-Core entities: `Agent` (has role, LLM, channels, SOUL.md file, heartbeat cron), `Task` (inbox → assigned → in_progress → review → done/blocked, with priorities, dependencies, parent tasks), `Session` (conversation history + working memory per agent), `Activity` (audit log of all actions), `Notification` (mentions, assignments, delivered/read tracking).
+Core entities: `Agent` (has role, LLM, channels, SOUL.md file, heartbeat cron), `Task` (inbox →
+assigned → in_progress → review → done/blocked, with priorities, dependencies, parent tasks),
+`Session` (conversation history + working memory per agent), `Activity` (audit log of all actions),
+`Notification` (mentions, assignments, delivered/read tracking).
 
 All IDs are branded string types to prevent misuse across entity boundaries.
 

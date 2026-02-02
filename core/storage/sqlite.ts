@@ -1,5 +1,6 @@
 import { Database } from "@db/sqlite";
 import type { QueryFilter, StorageAdapter, Transaction } from "./adapter.ts";
+import { StorageError } from "../errors.ts";
 
 const MIGRATIONS: string[] = [
   // v1: key-value store + entity tables
@@ -191,7 +192,11 @@ export class SqliteStorage implements StorageAdapter {
       return result;
     } catch (err) {
       this.#db.exec("ROLLBACK");
-      throw err;
+      throw new StorageError(
+        "STORAGE_TRANSACTION_FAILED",
+        `Transaction failed: ${(err as Error).message}`,
+        { cause: err as Error },
+      );
     }
   }
 

@@ -1,6 +1,6 @@
 import { assertEquals } from "jsr:@std/assert";
 import { join } from "jsr:@std/path";
-import { Gateway, GatewayClient, serializeConfig, defaultConfig } from "@squadrn/core";
+import { defaultConfig, Gateway, GatewayClient, serializeConfig } from "@squadrn/core";
 
 const SANITIZE = { sanitizeOps: false, sanitizeResources: false };
 
@@ -26,26 +26,30 @@ async function setupEnv(dir: string) {
   return { configPath, socketPath, pidPath, dbPath };
 }
 
-Deno.test({ name: "stop - graceful stop via socket shuts down gateway", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath, pidPath } = await setupEnv(dir);
+Deno.test({
+  name: "stop - graceful stop via socket shuts down gateway",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath, pidPath } = await setupEnv(dir);
 
-    const gw = new Gateway({ gracePeriodMs: 100 });
-    await gw.start(configPath, socketPath);
-    await Deno.writeTextFile(pidPath, String(Deno.pid));
-    await new Promise((r) => setTimeout(r, 50));
+      const gw = new Gateway({ gracePeriodMs: 100 });
+      await gw.start(configPath, socketPath);
+      await Deno.writeTextFile(pidPath, String(Deno.pid));
+      await new Promise((r) => setTimeout(r, 50));
 
-    const client = new GatewayClient(socketPath);
-    const resp = await client.stop();
-    assertEquals(resp.ok, true);
+      const client = new GatewayClient(socketPath);
+      const resp = await client.stop();
+      assertEquals(resp.ok, true);
 
-    // Wait for async stop
-    await new Promise((r) => setTimeout(r, 300));
-    assertEquals(gw.isRunning, false);
+      // Wait for async stop
+      await new Promise((r) => setTimeout(r, 300));
+      assertEquals(gw.isRunning, false);
 
-    await Deno.remove(pidPath).catch(() => {});
-  });
-}});
+      await Deno.remove(pidPath).catch(() => {});
+    });
+  },
+});
 
 Deno.test("stop - returns error when no gateway is running", async () => {
   const client = new GatewayClient("/tmp/nonexistent-squadrn-stop-test.sock");
@@ -53,30 +57,34 @@ Deno.test("stop - returns error when no gateway is running", async () => {
   assertEquals(resp.ok, false);
 });
 
-Deno.test({ name: "stop - cleans up socket and PID files", ...SANITIZE, fn: async () => {
-  await withTempDir(async (dir) => {
-    const { configPath, socketPath, pidPath } = await setupEnv(dir);
+Deno.test({
+  name: "stop - cleans up socket and PID files",
+  ...SANITIZE,
+  fn: async () => {
+    await withTempDir(async (dir) => {
+      const { configPath, socketPath, pidPath } = await setupEnv(dir);
 
-    const gw = new Gateway({ gracePeriodMs: 100 });
-    await gw.start(configPath, socketPath);
-    await Deno.writeTextFile(pidPath, String(Deno.pid));
-    await new Promise((r) => setTimeout(r, 50));
+      const gw = new Gateway({ gracePeriodMs: 100 });
+      await gw.start(configPath, socketPath);
+      await Deno.writeTextFile(pidPath, String(Deno.pid));
+      await new Promise((r) => setTimeout(r, 50));
 
-    // Verify files exist
-    const sockStat = await Deno.stat(socketPath).catch(() => null);
-    assertEquals(sockStat !== null, true);
-    const pidStat = await Deno.stat(pidPath).catch(() => null);
-    assertEquals(pidStat !== null, true);
+      // Verify files exist
+      const sockStat = await Deno.stat(socketPath).catch(() => null);
+      assertEquals(sockStat !== null, true);
+      const pidStat = await Deno.stat(pidPath).catch(() => null);
+      assertEquals(pidStat !== null, true);
 
-    // Stop gateway
-    await gw.stop();
+      // Stop gateway
+      await gw.stop();
 
-    // Socket should be cleaned by gateway
-    const sockAfter = await Deno.stat(socketPath).catch(() => null);
-    assertEquals(sockAfter, null);
+      // Socket should be cleaned by gateway
+      const sockAfter = await Deno.stat(socketPath).catch(() => null);
+      assertEquals(sockAfter, null);
 
-    // PID file still exists (CLI is responsible for cleanup)
-    // So we clean it here
-    await Deno.remove(pidPath).catch(() => {});
-  });
-}});
+      // PID file still exists (CLI is responsible for cleanup)
+      // So we clean it here
+      await Deno.remove(pidPath).catch(() => {});
+    });
+  },
+});

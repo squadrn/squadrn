@@ -127,8 +127,12 @@ Deno.test("different events are independent", async () => {
   const bus = new EventBus();
   const results: string[] = [];
 
-  bus.on("task:created", () => { results.push("created"); });
-  bus.on("task:completed", () => { results.push("completed"); });
+  bus.on("task:created", () => {
+    results.push("created");
+  });
+  bus.on("task:completed", () => {
+    results.push("completed");
+  });
 
   await bus.emit("task:created");
 

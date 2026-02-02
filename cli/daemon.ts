@@ -5,7 +5,7 @@
  * Usage: deno run --allow-all cli/daemon.ts <configPath> <socketPath> <pidPath>
  */
 
-import { Gateway } from "@squadrn/core";
+import { formatError, Gateway } from "@squadrn/core";
 
 const configPath = Deno.args[0];
 const socketPath = Deno.args[1];
@@ -21,7 +21,7 @@ const gateway = new Gateway();
 try {
   await gateway.start(configPath, socketPath);
 } catch (err) {
-  console.error(`Failed to start gateway: ${(err as Error).message}`);
+  console.error(`Failed to start gateway: ${formatError(err)}`);
   Deno.exit(1);
 }
 

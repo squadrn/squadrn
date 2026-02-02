@@ -10,12 +10,8 @@ import type {
 
 export type { AgentConfig, GatewayConfig, LogLevel, SquadrnConfig, StorageConfig };
 
-export class ConfigError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ConfigError";
-  }
-}
+import { ConfigError } from "./errors.ts";
+export { ConfigError };
 
 const VALID_LOG_LEVELS: ReadonlySet<string> = new Set(["debug", "info", "warn", "error"]);
 
@@ -161,7 +157,11 @@ export async function loadConfig(
     }
     return {
       ok: false,
-      error: new ConfigError(`Failed to read config: ${(err as Error).message}`),
+      error: new ConfigError(
+        "CONFIG_READ_FAILED",
+        `Failed to read config: ${(err as Error).message}`,
+        { cause: err as Error },
+      ),
     };
   }
 
@@ -171,7 +171,11 @@ export async function loadConfig(
   } catch (err) {
     return {
       ok: false,
-      error: new ConfigError(`Invalid TOML: ${(err as Error).message}`),
+      error: new ConfigError(
+        "CONFIG_PARSE_FAILED",
+        `Invalid TOML: ${(err as Error).message}`,
+        { cause: err as Error },
+      ),
     };
   }
 
@@ -179,7 +183,10 @@ export async function loadConfig(
   if (errors.length > 0) {
     return {
       ok: false,
-      error: new ConfigError(`Config validation failed:\n  - ${errors.join("\n  - ")}`),
+      error: new ConfigError(
+        "CONFIG_VALIDATION_FAILED",
+        `Config validation failed:\n  - ${errors.join("\n  - ")}`,
+      ),
     };
   }
 

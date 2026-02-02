@@ -11,8 +11,8 @@ const LEVEL_ORDER: Record<LogLevel, number> = {
 
 const LEVEL_COLORS: Record<LogLevel, string> = {
   debug: "\x1b[36m", // cyan
-  info: "\x1b[32m",  // green
-  warn: "\x1b[33m",  // yellow
+  info: "\x1b[32m", // green
+  warn: "\x1b[33m", // yellow
   error: "\x1b[31m", // red
 };
 
@@ -50,9 +50,7 @@ function formatPretty(entry: LogEntry): string {
   const { timestamp, level, namespace, message, ...extra } = entry;
   const color = LEVEL_COLORS[level];
   const tag = level.toUpperCase().padEnd(5);
-  const extraStr = Object.keys(extra).length > 0
-    ? ` ${DIM}${JSON.stringify(extra)}${RESET}`
-    : "";
+  const extraStr = Object.keys(extra).length > 0 ? ` ${DIM}${JSON.stringify(extra)}${RESET}` : "";
   return `${DIM}${timestamp}${RESET} ${color}${tag}${RESET} ${DIM}[${namespace}]${RESET} ${message}${extraStr}`;
 }
 
