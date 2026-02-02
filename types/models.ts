@@ -1,6 +1,7 @@
 // Branded ID types
 export type AgentId = string & { readonly __brand: "AgentId" };
 export type TaskId = string & { readonly __brand: "TaskId" };
+export type CommentId = string & { readonly __brand: "CommentId" };
 export type SessionId = string & { readonly __brand: "SessionId" };
 export type WorkspaceId = string & { readonly __brand: "WorkspaceId" };
 
@@ -41,6 +42,16 @@ export interface Session {
   lastActiveAt: Date;
 }
 
+export interface Comment {
+  id: CommentId;
+  taskId: TaskId;
+  authorId: string;
+  authorName: string;
+  content: string;
+  mentions: string[];
+  createdAt: Date;
+}
+
 export interface Task {
   id: TaskId;
   workspaceId: WorkspaceId;
@@ -52,6 +63,7 @@ export interface Task {
   creatorId?: string;
   parentTaskId?: TaskId;
   dependsOn: TaskId[];
+  comments: Comment[];
   tags: string[];
   dueDate?: Date;
   createdAt: Date;
@@ -65,6 +77,14 @@ export type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: 
 
 export function createAgentId(): AgentId {
   return crypto.randomUUID() as AgentId;
+}
+
+export function createTaskId(): TaskId {
+  return crypto.randomUUID() as TaskId;
+}
+
+export function createCommentId(): CommentId {
+  return crypto.randomUUID() as CommentId;
 }
 
 export function createSessionId(): SessionId {

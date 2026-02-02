@@ -16,9 +16,11 @@
 export type {
   AgentId,
   TaskId,
+  CommentId,
   SessionId,
   WorkspaceId,
   Agent,
+  Comment,
   Message,
   SessionContext,
   Session,
@@ -29,6 +31,8 @@ export type {
 
 export {
   createAgentId,
+  createTaskId,
+  createCommentId,
   createSessionId,
   serializeAgent,
   deserializeAgent,

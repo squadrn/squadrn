@@ -34,3 +34,5 @@ export { AgentRunner, AgentRunError, parseMentions, parseWorkingMemoryUpdates } 
 export type { AgentRunnerOptions } from "./agent_runner.ts";
 export { Scheduler, CronParseError, JobNotFoundError, parseCron, nextCronDate } from "./scheduler.ts";
 export type { ScheduledJob } from "./scheduler.ts";
+export { TaskManager, TaskNotFoundError, InvalidTransitionError } from "./task_manager.ts";
+export type { CreateTaskData, TaskFilter, AddCommentData } from "./task_manager.ts";

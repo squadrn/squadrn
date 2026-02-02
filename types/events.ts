@@ -16,6 +16,8 @@ export type EventName =
   | "task:assigned"
   | "task:updated"
   | "task:completed"
+  | "task:commented"
+  | "task:status_changed"
   // Agent
   | "agent:heartbeat"
   | "agent:thinking"
