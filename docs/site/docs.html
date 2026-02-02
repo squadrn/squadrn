@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docs — Squadrn</title>
+    <meta
+      name="description"
+      content="Squadrn documentation. Guides, API reference, and architecture for the AI agent orchestration platform."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      *, *::before, *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #0a0a0c;
+        --bg-raised: #111114;
+        --bg-surface: #18181c;
+        --border: #222228;
+        --border-accent: #2a2a32;
+        --text: #e8e8ec;
+        --text-dim: #7a7a88;
+        --text-muted: #4a4a56;
+        --accent: #c8ff00;
+        --accent-dim: #a0cc00;
+        --mono: "DM Mono", monospace;
+        --sans: "Instrument Sans", system-ui, sans-serif;
+        --sidebar-w: 260px;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 60px 60px;
+        opacity: 0.15;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      /* — NAV — */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        padding: 1rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(10, 10, 12, 0.8);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-logo {
+        font-family: var(--mono);
+        font-weight: 500;
+        font-size: 0.9rem;
+        letter-spacing: 0.08em;
+        color: var(--text);
+        text-transform: uppercase;
+      }
+
+      .nav-logo span {
+        color: var(--accent);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+        font-size: 0.85rem;
+        color: var(--text-dim);
+      }
+
+      .nav-links a {
+        color: var(--text-dim);
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--text);
+        text-decoration: none;
+      }
+      .nav-links a.active {
+        color: var(--text);
+      }
+
+      /* — LAYOUT — */
+      .docs-layout {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        padding-top: 57px;
+        min-height: 100vh;
+      }
+
+      /* — SIDEBAR — */
+      .sidebar {
+        width: var(--sidebar-w);
+        min-width: var(--sidebar-w);
+        border-right: 1px solid var(--border);
+        padding: 2rem 0;
+        position: sticky;
+        top: 57px;
+        height: calc(100vh - 57px);
+        overflow-y: auto;
+        background: var(--bg);
+      }
+
+      .sidebar-label {
+        font-family: var(--mono);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--text-muted);
+        padding: 0 1.5rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .sidebar-nav {
+        list-style: none;
+      }
+
+      .sidebar-nav a {
+        display: block;
+        padding: 0.45rem 1.5rem;
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        border-left: 2px solid transparent;
+        transition: color 0.15s, border-color 0.15s, background 0.15s;
+      }
+
+      .sidebar-nav a:hover {
+        color: var(--text);
+        background: var(--bg-raised);
+        text-decoration: none;
+      }
+
+      .sidebar-nav a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: rgba(200, 255, 0, 0.04);
+      }
+
+      /* — CONTENT — */
+      .doc-content {
+        flex: 1;
+        min-width: 0;
+        max-width: 820px;
+        padding: 2.5rem 3rem 6rem;
+      }
+
+      .edit-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+        transition: color 0.2s;
+      }
+
+      .edit-link:hover {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .edit-link svg {
+        width: 14px;
+        height: 14px;
+        fill: currentColor;
+      }
+
+      /* — LOADING — */
+      .loading {
+        color: var(--text-muted);
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        padding: 4rem 0;
+      }
+
+      /* — MARKDOWN STYLES — */
+      .doc-content h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .doc-content h2 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        margin-top: 2.5rem;
+        margin-bottom: 0.75rem;
+        color: var(--text);
+      }
+
+      .doc-content h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .doc-content h4 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-dim);
+      }
+
+      .doc-content p {
+        margin-bottom: 1rem;
+        color: var(--text-dim);
+        line-height: 1.8;
+      }
+
+      .doc-content ul, .doc-content ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+        color: var(--text-dim);
+      }
+
+      .doc-content li {
+        margin-bottom: 0.35rem;
+        line-height: 1.7;
+      }
+
+      .doc-content code {
+        font-family: var(--mono);
+        font-size: 0.85em;
+        background: var(--bg-raised);
+        border: 1px solid var(--border);
+        padding: 0.15em 0.4em;
+        border-radius: 4px;
+        color: var(--accent-dim);
+      }
+
+      .doc-content pre {
+        background: var(--bg-raised);
+        border: 1px solid var(--border-accent);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        overflow-x: auto;
+      }
+
+      .doc-content pre code {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 0.8rem;
+        line-height: 1.8;
+        color: var(--text-dim);
+      }
+
+      .doc-content blockquote {
+        border-left: 3px solid var(--accent);
+        padding: 0.5rem 1rem;
+        margin-bottom: 1rem;
+        background: rgba(200, 255, 0, 0.03);
+        color: var(--text-dim);
+      }
+
+      .doc-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.25rem;
+        font-size: 0.85rem;
+      }
+
+      .doc-content th {
+        text-align: left;
+        padding: 0.6rem 0.75rem;
+        border-bottom: 2px solid var(--border-accent);
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .doc-content td {
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-dim);
+      }
+
+      .doc-content hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 2rem 0;
+      }
+
+      .doc-content img {
+        max-width: 100%;
+        border-radius: 8px;
+      }
+
+      .doc-content strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      /* — MOBILE — */
+      .sidebar-toggle {
+        display: none;
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        z-index: 200;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: var(--bg);
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        align-items: center;
+        justify-content: center;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          position: fixed;
+          left: -100%;
+          top: 57px;
+          width: 280px;
+          min-width: 280px;
+          height: calc(100vh - 57px);
+          z-index: 150;
+          transition: left 0.25s ease;
+          background: var(--bg);
+        }
+
+        .sidebar.open {
+          left: 0;
+        }
+
+        .sidebar-toggle {
+          display: flex;
+        }
+
+        .doc-content {
+          padding: 2rem 1.5rem 4rem;
+        }
+
+        nav {
+          padding: 1rem;
+        }
+
+        .nav-links {
+          gap: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="./" class="nav-logo" style="text-decoration:none">squadrn<span>.</span></a>
+      <ul class="nav-links">
+        <li><a href="./docs.html" class="active">Docs</a></li>
+        <li><a href="https://github.com/squadrn/squadrn/tree/main/plugins">Plugins</a></li>
+        <li><a href="https://github.com/squadrn/squadrn">GitHub</a></li>
+      </ul>
+    </nav>
+
+    <div class="docs-layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-label">Documentation</div>
+        <ul class="sidebar-nav" id="sidebar-nav"></ul>
+      </aside>
+
+      <main class="doc-content" id="doc-content">
+        <div class="loading">Loading...</div>
+      </main>
+    </div>
+
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+      &#9776;
+    </button>
+
+    <script>
+      const REPO = "squadrn/squadrn";
+      const BRANCH = "main";
+      const DOCS_PATH = "docs";
+      const GITHUB_BASE = "https://github.com/" + REPO + "/blob/" + BRANCH + "/" + DOCS_PATH + "/";
+      const RAW_BASE =
+        "https://raw.githubusercontent.com/" + REPO + "/" + BRANCH + "/" + DOCS_PATH + "/";
+      const API_URL =
+        "https://api.github.com/repos/" + REPO + "/contents/" + DOCS_PATH + "?ref=" + BRANCH;
+
+      // Files/dirs to exclude from the docs listing
+      const EXCLUDE = new Set(["site", "README.md"]);
+
+      let DOCS = [];
+
+      const sidebarNav = document.getElementById("sidebar-nav");
+      const content = document.getElementById("doc-content");
+      const sidebar = document.getElementById("sidebar");
+      const sidebarToggle = document.getElementById("sidebar-toggle");
+
+      function slugFromFile(file) {
+        return file.replace(/\.md$/i, "").toLowerCase();
+      }
+
+      function titleFromFile(file) {
+        return file
+          .replace(/\.md$/i, "")
+          .replace(/[-_]/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+
+      function buildSidebar() {
+        sidebarNav.innerHTML = "";
+        DOCS.forEach((doc) => {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = "#" + doc.slug;
+          a.textContent = doc.title;
+          a.dataset.slug = doc.slug;
+          li.appendChild(a);
+          sidebarNav.appendChild(li);
+        });
+      }
+
+      async function fetchDocList() {
+        try {
+          const res = await fetch(API_URL);
+          if (!res.ok) throw new Error("GitHub API error");
+          const items = await res.json();
+          DOCS = items
+            .filter((f) => f.type === "file" && f.name.endsWith(".md") && !EXCLUDE.has(f.name))
+            .map((f) => ({ slug: slugFromFile(f.name), file: f.name, title: titleFromFile(f.name) }));
+        } catch {
+          // Fallback: if API fails (rate limit), use a minimal hardcoded list
+          DOCS = [
+            { slug: "getting-started", file: "getting-started.md", title: "Getting Started" },
+          ];
+        }
+        buildSidebar();
+        onHashChange();
+      }
+
+      // Mobile toggle
+      sidebarToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+      });
+
+      // Close sidebar on link click (mobile)
+      sidebarNav.addEventListener("click", () => {
+        sidebar.classList.remove("open");
+      });
+
+      async function loadDoc(slug) {
+        const doc = DOCS.find((d) => d.slug === slug);
+        if (!doc) {
+          content.innerHTML = '<p style="color:var(--text-muted)">Document not found.</p>';
+          return;
+        }
+
+        // Update active sidebar link
+        sidebarNav.querySelectorAll("a").forEach((a) => {
+          a.classList.toggle("active", a.dataset.slug === slug);
+        });
+
+        content.innerHTML = '<div class="loading">Loading...</div>';
+
+        try {
+          const res = await fetch(RAW_BASE + doc.file);
+          if (!res.ok) throw new Error("Failed to fetch");
+          const md = await res.text();
+          const html = marked.parse(md);
+
+          content.innerHTML =
+            '<a class="edit-link" href="' +
+            GITHUB_BASE +
+            doc.file +
+            '" target="_blank" rel="noopener">' +
+            '<svg viewBox="0 0 16 16"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L3.464 11.1a.25.25 0 0 0-.064.108l-.457 1.6 1.6-.457a.25.25 0 0 0 .108-.064l8.609-8.609a.25.25 0 0 0 0-.354l-1.086-1.086Z"/></svg>' +
+            "Edit on GitHub</a>" +
+            html;
+
+          content.scrollTo(0, 0);
+          window.scrollTo(0, 0);
+        } catch {
+          content.innerHTML =
+            '<p style="color:var(--text-muted)">Failed to load document. ' +
+            '<a href="' +
+            GITHUB_BASE +
+            doc.file +
+            '">View on GitHub</a></p>';
+        }
+      }
+
+      function onHashChange() {
+        if (DOCS.length === 0) return;
+        const slug = location.hash.slice(1) || DOCS[0].slug;
+        loadDoc(slug);
+      }
+
+      window.addEventListener("hashchange", onHashChange);
+      fetchDocList();
+    </script>
+  </body>
+</html>

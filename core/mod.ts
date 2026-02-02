@@ -27,7 +27,7 @@ export { NotificationNotFoundError } from "./notification_manager.ts";
 export { Gateway } from "./gateway.ts";
 export type { GatewayCommand, GatewayResponse, GatewayStatus } from "./gateway.ts";
 export { GatewayClient } from "./gateway_client.ts";
-export { IS_WINDOWS, isProcessAlive, needsSocketCleanup } from "./ipc.ts";
+export { cleanupIpcFiles, IS_WINDOWS, isProcessAlive, needsSocketCleanup } from "./ipc.ts";
 export { EventBus } from "./event_bus.ts";
 export {
   ConfigManager,

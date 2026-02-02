@@ -5,7 +5,7 @@ import type { StorageAdapter } from "./storage/adapter.ts";
 import { createLogger } from "./logger.ts";
 import { PluginLoader } from "./plugin_loader.ts";
 import type { Logger } from "@squadrn/types";
-import { listenIpc, needsSocketCleanup } from "./ipc.ts";
+import { cleanupIpcFiles, listenIpc, needsSocketCleanup } from "./ipc.ts";
 
 /** JSON command sent over the Unix socket. */
 export interface GatewayCommand {
@@ -153,11 +153,7 @@ export class Gateway {
       this.#listener = null;
     }
     if (this.#socketPath) {
-      if (needsSocketCleanup()) {
-        try {
-          await Deno.remove(this.#socketPath);
-        } catch { /* already removed */ }
-      }
+      await cleanupIpcFiles(this.#socketPath);
       this.#socketPath = null;
     }
 
