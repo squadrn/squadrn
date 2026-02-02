@@ -28,7 +28,9 @@ export type EventName =
   | "session:ended"
   // Notifications
   | "notification:created"
-  | "notification:delivered";
+  | "notification:delivered"
+  // Activities
+  | "activity:recorded";
 
 export type EventHandler = (payload: unknown) => void | Promise<void>;
 

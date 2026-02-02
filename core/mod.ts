@@ -42,3 +42,5 @@ export {
   parseMentions as parseNotificationMentions,
 } from "./notification_manager.ts";
 export type { CreateNotificationData } from "./notification_manager.ts";
+export { ActivityManager } from "./activity_manager.ts";
+export type { RecordActivityData, ActivityFilter } from "./activity_manager.ts";

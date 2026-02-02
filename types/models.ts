@@ -5,6 +5,7 @@ export type CommentId = string & { readonly __brand: "CommentId" };
 export type SessionId = string & { readonly __brand: "SessionId" };
 export type WorkspaceId = string & { readonly __brand: "WorkspaceId" };
 export type NotificationId = string & { readonly __brand: "NotificationId" };
+export type ActivityId = string & { readonly __brand: "ActivityId" };
 
 export interface Agent {
   id: AgentId;
@@ -87,6 +88,31 @@ export interface Notification {
   createdAt: Date;
 }
 
+export type ActivityType =
+  | "task_created"
+  | "task_assigned"
+  | "task_status_changed"
+  | "task_commented"
+  | "agent_started"
+  | "agent_stopped"
+  | "agent_heartbeat"
+  | "message_received"
+  | "message_sent"
+  | "plugin_loaded"
+  | "plugin_error";
+
+export interface Activity {
+  id: ActivityId;
+  workspaceId: WorkspaceId;
+  type: ActivityType;
+  actorId: string;
+  actorType: "agent" | "user" | "system";
+  targetType: "task" | "agent" | "message" | "plugin";
+  targetId: string;
+  data: Record<string, unknown>;
+  createdAt: Date;
+}
+
 export type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: E };
 
 // ── Helper functions ─────────────────────────────────────────────────────────
@@ -109,6 +135,10 @@ export function createSessionId(): SessionId {
 
 export function createNotificationId(): NotificationId {
   return crypto.randomUUID() as NotificationId;
+}
+
+export function createActivityId(): ActivityId {
+  return crypto.randomUUID() as ActivityId;
 }
 
 export interface SerializedAgent {
